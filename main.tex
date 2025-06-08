@@ -1041,11 +1041,11 @@ Por ejemplo, si tratas de acceder a \texttt{cat} desde dentro de \texttt{print\_
 
 \begin{lstlisting}
 Traceback (innermost last):
-  File "test.py", line 13, in __main__
+File "test.py", line 13, in __main__
     cat_twice(line1, line2)
-  File "test.py", line 5, in cat_twice
+File "test.py", line 5, in cat_twice
     print_twice(cat)
-  File "test.py", line 9, in print_twice
+File "test.py", line 9, in print_twice
     print(cat)
 NameError: name 'cat' is not defined
 \end{lstlisting}
@@ -1262,8 +1262,15 @@ Crédito: Este ejercicio está basado en un ejercicio en Oualline, \textit{Pract
 
 
 
-\chapter{Caso de estudio: Diseño de interfaz}
+\chapter{Caso de estudio: diseño de interfaz}
 
+Este capítulo presenta un estudio de caso que demuestra un proceso para diseñar funciones que trabajen juntas.
+
+Introduce el módulo \texttt{turtle}, que te permite crear imágenes usando gráficos de tortuga. El módulo \texttt{turtle} está incluido en la mayoría de las instalaciones de Python, pero si estás ejecutando Python usando PythonAnywhere, no podrás ejecutar los ejemplos de turtle (al menos no podías cuando escribí esto).
+
+Si ya has instalado Python en tu computadora, deberías poder ejecutar los ejemplos. De lo contrario, ahora es un buen momento para instalarlo. He publicado instrucciones en \url{http://tinyurl.com/thinkpython2e}.
+
+Los ejemplos de código de este capítulo están disponibles en \url{https://thinkpython.com/code/polygon.py}.
 
 \section{El modelo Tortuga}
 \section{Repetición simple}
