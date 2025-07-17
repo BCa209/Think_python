@@ -1,0 +1,586 @@
+%Capítulo 3
+
+\chapter{Funciones}
+
+En el contexto de la programación, una \textbf{función} es una secuencia nombrada de declaraciones que realiza una computación. Cuando defines una función, especificas el nombre y la secuencia de declaraciones. Más tarde, puedes ``llamar'' a la función por su nombre.
+
+\section{Llamadas a funciones}
+
+Ya hemos visto un ejemplo de una llamada a función:
+
+\begin{verbatim}
+>>> type(42)
+<class 'int'>
+\end{verbatim}
+
+El nombre de la función es \texttt{type}. La expresión entre paréntesis se llama el \textbf{argumento} de la función. El resultado, para esta función, es el tipo del argumento.
+
+Es común decir que una función ``toma'' un argumento y ``devuelve'' un resultado. El resultado también se llama el \textbf{valor de retorno}.
+
+Python proporciona funciones que convierten valores de un tipo a otro. La función \texttt{int} toma cualquier valor y lo convierte a un entero, si puede, o se queja de lo contrario:
+
+\begin{verbatim}
+>>> int('32')
+32
+>>> int('Hello')
+ValueError: invalid literal for int(): Hello
+\end{verbatim}
+
+\texttt{int} puede convertir valores de punto flotante a enteros, pero no redondea; corta la parte fraccionaria:
+
+\begin{verbatim}
+>>> int(3.99999)
+3
+>>> int(-2.3)
+-2
+\end{verbatim}
+
+\texttt{float} convierte enteros y cadenas a números de punto flotante:
+
+\begin{verbatim}
+>>> float(32)
+32.0
+>>> float('3.14159')
+3.14159
+\end{verbatim}
+
+Finalmente, \texttt{str} convierte su argumento a una cadena de texto:
+
+\begin{lstlisting}
+>>> str(32)
+'32'
+>>> str(3.14159)
+'3.14159'
+\end{lstlisting}
+
+\section{Funciones Matemáticas}
+
+Python tiene un módulo \texttt{math} que proporciona la mayoría de las funciones matemáticas familiares. Un módulo es un archivo que contiene una colección de funciones relacionadas.
+
+Antes de poder usar las funciones en un módulo, tenemos que importarlo con una declaración de importación:
+
+\begin{lstlisting}
+>>> import math
+\end{lstlisting}
+
+Esta declaración crea un objeto módulo llamado \texttt{math}. Si muestras el objeto módulo, obtienes información sobre él:
+
+\begin{lstlisting}
+>>> math
+<module 'math' (built-in)>
+\end{lstlisting}
+
+El objeto módulo contiene las funciones y variables definidas en el módulo. Para acceder a una de las funciones, tienes que especificar el nombre del módulo y el nombre de la función, separados por un punto (también conocido como período). Este formato se llama notación de punto.
+
+\begin{lstlisting}
+>>> ratio = signal_power / noise_power
+>>> decibels = 10 * math.log10(ratio)
+
+>>> radians = 0.7
+>>> height = math.sin(radians)
+\end{lstlisting}
+
+El primer ejemplo usa \texttt{math.log10} para calcular una relación señal-ruido en decibelios (asumiendo que \texttt{signal\_power} y \texttt{noise\_power} están definidos). El módulo \texttt{math} también proporciona \texttt{log}, que calcula logaritmos en base $e$.
+
+El segundo ejemplo encuentra el seno de \texttt{radians}. El nombre de la variable \texttt{radians} es una pista de que \texttt{sin} y las otras funciones trigonométricas (\texttt{cos}, \texttt{tan}, etc.) toman argumentos en radianes.
+
+Para convertir de grados a radianes, divide por 180 y multiplica por $\pi$:
+
+\begin{lstlisting}
+>>> degrees = 45
+>>> radians = degrees / 180.0 * math.pi
+>>> math.sin(radians)
+0.707106781187
+\end{lstlisting}
+
+La expresión \texttt{math.pi} obtiene la variable $\pi$ del módulo \texttt{math}. Su valor es una aproximación en punto flotante de $\pi$, precisa hasta aproximadamente 15 dígitos.
+
+Si conoces trigonometría, puedes verificar el resultado anterior comparándolo con la raíz cuadrada de dos, dividida por dos:
+
+\begin{lstlisting}
+>>> math.sqrt(2) / 2.0
+0.707106781187
+\end{lstlisting}
+
+\section{Composición}
+
+Hasta ahora, hemos examinado los elementos de un programa—variables, expresiones y declaraciones—de forma aislada, sin hablar sobre cómo combinarlos.
+
+Una de las características más útiles de los lenguajes de programación es su capacidad para tomar pequeños bloques de construcción y componerlos. Por ejemplo, el argumento de una función puede ser cualquier tipo de expresión, incluyendo operadores aritméticos:
+
+\begin{lstlisting}
+x = math.sin(degrees / 360.0 * 2 * math.pi)
+\end{lstlisting}
+
+E incluso llamadas a funciones:
+
+\begin{lstlisting}
+x = math.exp(math.log(x+1))
+\end{lstlisting}
+
+Casi en cualquier lugar donde puedas poner un valor, puedes poner una expresión arbitraria, con una excepción: el lado izquierdo de una declaración de asignación tiene que ser un nombre de variable. Cualquier otra expresión en el lado izquierdo es un error de sintaxis (veremos excepciones a esta regla más adelante).
+
+\begin{lstlisting}
+>>> minutes = hours * 60
+>>> hours * 60 = minutes
+SyntaxError: can't assign to operator
+\end{lstlisting}
+
+\section{Agregando nuevas funciones}
+
+Hasta ahora, solo hemos estado usando las funciones que vienen con Python, pero también es posible añadir nuevas funciones. Una definición de función especifica el nombre de una nueva función y la secuencia de declaraciones que se ejecutan cuando la función es llamada.
+
+Aquí hay un ejemplo:
+
+\begin{lstlisting}
+def print_lyrics():
+    print("I'm a lumberjack, and I'm okay.")
+    print("I sleep all night and I work all day.")
+\end{lstlisting}
+
+\texttt{def} es una palabra clave que indica que esta es una definición de función. El nombre de la función es \texttt{print\_lyrics}. Las reglas para los nombres de funciones son las mismas que para los nombres de variables: letras, números y guiones bajos son legales, pero el primer carácter no puede ser un número. No puedes usar una palabra clave como nombre de una función, y debes evitar tener una variable y una función con el mismo nombre.
+
+Los paréntesis vacíos después del nombre indican que esta función no toma ningún argumento.
+
+La primera línea de la definición de función se llama el \textbf{encabezado}; el resto se llama el \textbf{cuerpo}. El encabezado tiene que terminar con dos puntos y el cuerpo tiene que estar indentado. Por convención, la indentación es siempre de cuatro espacios. El cuerpo puede contener cualquier número de declaraciones.
+
+Las cadenas en las declaraciones \texttt{print} están encerradas en comillas dobles. Las comillas simples y dobles hacen lo mismo; la mayoría de las personas usan comillas simples excepto en casos como este donde una comilla simple (que también es un apóstrofe) aparece en la cadena.
+
+Todas las comillas (simples y dobles) deben ser ``comillas rectas'', usualmente ubicadas junto a Enter en el teclado. Las ``comillas curvas'', como las de esta oración, no son legales en Python.
+
+Si escribes una definición de función en modo interactivo, el intérprete imprime puntos (\texttt{...}) para hacerte saber que la definición no está completa:
+
+\begin{lstlisting}
+>>> def print_lyrics():
+...     print("I'm a lumberjack, and I'm okay.")
+...     
+...     print("I sleep all night and I work all day.")
+\end{lstlisting}
+
+Para terminar la función, tienes que ingresar una línea vacía.
+
+Definir una función crea un objeto función, que tiene tipo \texttt{function}:
+
+\begin{lstlisting}
+>>> print(print_lyrics)
+<function print_lyrics at 0x7f...>
+>>> type(print_lyrics)
+<class 'function'>
+\end{lstlisting}
+
+La sintaxis para llamar a la nueva función es la misma que para las funciones incorporadas:
+
+\begin{lstlisting}
+>>> print_lyrics()
+I'm a lumberjack, and I'm okay.
+I sleep all night and I work all day.
+\end{lstlisting}
+
+Una vez que has definido una función, puedes usarla dentro de otra función. Por ejemplo, para repetir el estribillo anterior, podríamos escribir una función llamada \texttt{repeat\_lyrics}:
+
+\begin{lstlisting}
+def repeat_lyrics():
+    print_lyrics()
+    print_lyrics()
+\end{lstlisting}
+
+Y luego llamar a \texttt{repeat\_lyrics}:
+
+\begin{lstlisting}
+>>> repeat_lyrics()
+I'm a lumberjack, and I'm okay.
+I sleep all night and I work all day.
+I'm a lumberjack, and I'm okay.
+I sleep all night and I work all day.
+\end{lstlisting}
+
+Pero esa no es realmente como va la canción.
+
+\section{Definiciones y Usos}
+
+Reuniendo los fragmentos de código de la sección anterior, todo el programa se ve así:
+
+\begin{lstlisting}
+def print_lyrics():
+    print("I'm a lumberjack, and I'm okay.")
+    print("I sleep all night and I work all day.")
+
+def repeat_lyrics():
+    print_lyrics()
+    print_lyrics()
+
+repeat_lyrics()
+\end{lstlisting}
+
+Este programa contiene dos definiciones de función: \texttt{print\_lyrics} y \texttt{repeat\_lyrics}. Las definiciones de función se ejecutan igual que otras declaraciones, pero el efecto es crear objetos función. Las declaraciones dentro de la función no se ejecutan hasta que la función es llamada, y la definición de función no genera ninguna salida.
+
+Como podrías esperar, tienes que crear una función antes de poder ejecutarla. En otras palabras, la definición de función tiene que ejecutarse antes de que la función sea llamada.
+
+Como ejercicio, mueve la última línea de este programa al principio, para que la llamada a la función aparezca antes de las definiciones. Ejecuta el programa y ve qué mensaje de error obtienes.
+
+Ahora mueve la llamada a la función de vuelta al final y mueve la definición de \texttt{print\_lyrics} después de la definición de \texttt{repeat\_lyrics}. ¿Qué sucede cuando ejecutas este programa?
+
+\section{Flujo de Ejecución}
+
+Para asegurar que una función esté definida antes de su primer uso, tienes que conocer el orden en que se ejecutan las declaraciones, lo cual se llama el flujo de ejecución.
+
+La ejecución siempre comienza en la primera declaración del programa. Las declaraciones se ejecutan una a la vez, en orden de arriba hacia abajo.
+
+Las definiciones de función no alteran el flujo de ejecución del programa, pero recuerda que las declaraciones dentro de la función no se ejecutan hasta que la función es llamada.
+
+Una llamada a función es como un desvío en el flujo de ejecución. En lugar de ir a la siguiente declaración, el flujo salta al cuerpo de la función, ejecuta las declaraciones ahí, y luego regresa para continuar donde se quedó.
+
+Eso suena bastante simple, hasta que recuerdas que una función puede llamar a otra. Mientras está en el medio de una función, el programa podría tener que ejecutar las declaraciones en otra función. Luego, mientras ejecuta esa nueva función, ¡el programa podría tener que ejecutar aún otra función!
+
+Afortunadamente, Python es bueno manteniendo el registro de dónde está, así que cada vez que una función se completa, el programa continúa donde se quedó en la función que la llamó. Cuando llega al final del programa, termina.
+
+En resumen, cuando lees un programa, no siempre quieres leer de arriba hacia abajo. A veces tiene más sentido si sigues el flujo de ejecución.
+
+\section{Parámetros y Argumentos}
+
+Algunas de las funciones que hemos visto requieren argumentos. Por ejemplo, cuando llamas a \texttt{math.sin} pasas un número como argumento. Algunas funciones toman más de un argumento: \texttt{math.pow} toma dos, la base y el exponente.
+
+Dentro de la función, los argumentos son asignados a variables llamadas parámetros. Aquí hay una definición para una función que toma un argumento:
+
+\begin{lstlisting}
+def print_twice(bruce):
+    print(bruce)
+    print(bruce)
+\end{lstlisting}
+
+Esta función asigna el argumento a un parámetro llamado \texttt{bruce}. Cuando la función es llamada, imprime el valor del parámetro (sea lo que sea) dos veces.
+
+Esta función funciona con cualquier valor que pueda ser impreso.
+
+\begin{lstlisting}
+>>> print_twice('Spam')
+Spam
+Spam
+>>> print_twice(42)
+42
+42
+>>> print_twice(math.pi)
+3.14159265359
+3.14159265359
+\end{lstlisting}
+
+Las mismas reglas de composición que se aplican a las funciones incorporadas también se aplican a las funciones definidas por el programador, así que podemos usar cualquier tipo de expresión como argumento para \texttt{print\_twice}:
+
+\begin{lstlisting}
+>>> print_twice('Spam '*4)
+Spam Spam Spam Spam 
+Spam Spam Spam Spam 
+>>> print_twice(math.cos(math.pi))
+-1.0
+-1.0
+\end{lstlisting}
+
+El argumento es evaluado antes de que la función sea llamada, así que en los ejemplos las expresiones \texttt{'Spam '*4} y \texttt{math.cos(math.pi)} son evaluadas solo una vez.
+
+También puedes usar una variable como argumento:
+
+\begin{lstlisting}
+>>> michael = 'Eric, the half a bee.'
+>>> print_twice(michael)
+Eric, the half a bee.
+Eric, the half a bee.
+\end{lstlisting}
+
+El nombre de la variable que pasamos como argumento (\texttt{michael}) no tiene nada que ver con el nombre del parámetro (\texttt{bruce}). No importa cómo se llamaba el valor en casa (en el que llama); aquí en \texttt{print\_twice}, llamamos a todos \texttt{bruce}.
+
+\section{Variables y Parámetros Locales}
+
+Cuando creas una variable dentro de una función, es local, lo que significa que solo existe dentro de la función. Por ejemplo:
+
+\begin{lstlisting}
+def cat_twice(part1, part2):
+    cat = part1 + part2
+    print_twice(cat)
+\end{lstlisting}
+
+Esta función toma dos argumentos, los concatena, e imprime el resultado dos veces. Aquí hay un ejemplo que la usa:
+
+\begin{lstlisting}
+>>> line1 = 'Bing tiddle '
+>>> line2 = 'tiddle bang.'
+>>> cat_twice(line1, line2)
+Bing tiddle tiddle bang.
+Bing tiddle tiddle bang.
+\end{lstlisting}
+
+Cuando \texttt{cat\_twice} termina, la variable \texttt{cat} es destruida. Si tratamos de imprimirla, obtenemos una excepción:
+
+\begin{figure}[h]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\multicolumn{2}{|c|}{\textbf{\_\_main\_\_}} \\
+\hline
+line1 & $\longrightarrow$ 'Bing tiddle ' \\
+line2 & $\longrightarrow$ 'tiddle bang.' \\
+\hline
+\end{tabular}
+
+\vspace{0.5cm}
+
+\begin{tabular}{|l|l|}
+\hline
+\multicolumn{2}{|c|}{\textbf{cat\_twice}} \\
+\hline
+part1 & $\longrightarrow$ 'Bing tiddle ' \\
+part2 & $\longrightarrow$ 'tiddle bang.' \\
+cat & $\longrightarrow$ 'Bing tiddle tiddle bang.' \\
+\hline
+\end{tabular}
+
+\vspace{0.5cm}
+
+\begin{tabular}{|l|l|}
+\hline
+\multicolumn{2}{|c|}{\textbf{print\_twice}} \\
+\hline
+bruce & $\longrightarrow$ 'Bing tiddle tiddle bang.' \\
+\hline
+\end{tabular}
+
+\caption{Diagrama de pila.}
+\label{fig:stack_diagram}
+\end{figure}
+
+\begin{lstlisting}
+>>> print(cat)
+NameError: name 'cat' is not defined
+\end{lstlisting}
+
+%Los parámetros también son locales. Por ejemplo, fuera de print_twice, no existe nada parecido a bruce.
+
+\section{Diagramas de Pila}
+
+Para hacer un seguimiento de qué variables pueden ser usadas en dónde, a veces es útil dibujar un diagrama de pila. Como los diagramas de estado, los diagramas de pila muestran el valor de cada variable, pero también muestran la función a la que pertenece cada variable.
+
+Cada función está representada por un marco. Un marco es una caja con el nombre de una función al lado y los parámetros y variables de la función dentro de ella. El diagrama de pila para el ejemplo anterior se muestra en la Figura 3.1.
+
+Los marcos están organizados en una pila que indica qué función llamó a cuál, y así sucesivamente. En este ejemplo, \texttt{print\_twice} fue llamada por \texttt{cat\_twice}, y \texttt{cat\_twice} fue llamada por \texttt{\_\_main\_\_}, que es un nombre especial para el marco superior. Cuando creas una variable fuera de cualquier función, pertenece a \texttt{\_\_main\_\_}.
+
+Cada parámetro se refiere al mismo valor que su argumento correspondiente. Así, \texttt{part1} tiene el mismo valor que \texttt{line1}, \texttt{part2} tiene el mismo valor que \texttt{line2}, y \texttt{bruce} tiene el mismo valor que \texttt{cat}.
+
+Si ocurre un error durante una llamada a función, Python imprime el nombre de la función, el nombre de la función que la llamó, y el nombre de la función que llamó a esa, todo el camino de vuelta hasta \texttt{\_\_main\_\_}.
+
+Por ejemplo, si tratas de acceder a \texttt{cat} desde dentro de \texttt{print\_twice}, obtienes un \texttt{NameError}:
+
+\begin{lstlisting}
+Traceback (innermost last):
+File "test.py", line 13, in __main__
+    cat_twice(line1, line2)
+File "test.py", line 5, in cat_twice
+    print_twice(cat)
+File "test.py", line 9, in print_twice
+    print(cat)
+NameError: name 'cat' is not defined
+\end{lstlisting}
+
+Esta lista de funciones se llama un \textit{traceback}. Te dice en qué archivo de programa ocurrió el error, y en qué línea, y qué funciones se estaban ejecutando en ese momento. También muestra la línea de código que causó el error.
+
+El orden de las funciones en el traceback es el mismo que el orden de los marcos en el diagrama de pila. La función que se está ejecutando actualmente está en la parte inferior.
+
+\section{Funciones con valor de retorno y funciones vacías}
+
+Algunas de las funciones que hemos usado, como las funciones matemáticas, devuelven resultados; por falta de un nombre mejor, las llamo funciones con valor de retorno. Otras funciones, como \texttt{print\_twice}, realizan una acción pero no devuelven un valor. Se llaman funciones vacías.
+
+Cuando llamas a una función con valor de retorno, casi siempre quieres hacer algo con el resultado; por ejemplo, podrías asignarlo a una variable o usarlo como parte de una expresión:
+
+\begin{lstlisting}[language=Python]
+x = math.cos(radians)
+golden = (math.sqrt(5) + 1) / 2
+\end{lstlisting}
+
+Cuando llamas a una función en modo interactivo, Python muestra el resultado:
+
+\begin{lstlisting}[language=Python]
+>>> math.sqrt(5)
+2.2360679774997898
+\end{lstlisting}
+
+Pero en un script, si llamas a una función con valor de retorno por sí sola, ¡el valor de retorno se pierde para siempre!
+
+\begin{lstlisting}[language=Python]
+math.sqrt(5)
+\end{lstlisting}
+
+Este script calcula la raíz cuadrada de 5, pero como no almacena ni muestra el resultado, no es muy útil.
+
+Las funciones vacías pueden mostrar algo en la pantalla o tener algún otro efecto, pero no tienen un valor de retorno. Si asignas el resultado a una variable, obtienes un valor especial llamado \texttt{None}.
+
+\begin{lstlisting}[language=Python]
+>>> result = print_twice('Bing')
+Bing
+Bing
+>>> print(result)
+None
+\end{lstlisting}
+
+El valor \texttt{None} no es lo mismo que la cadena \texttt{'None'}. Es un valor especial que tiene su propio tipo:
+
+\begin{lstlisting}[language=Python]
+>>> type(None)
+<class 'NoneType'>
+\end{lstlisting}
+
+Las funciones que hemos escrito hasta ahora son todas vacías. Comenzaremos a escribir funciones con valor de retorno en unos pocos capítulos.
+
+\section{¿Por qué funciones?}
+
+Puede que no esté claro por qué vale la pena tomarse la molestia de dividir un programa en funciones. Hay varias razones:
+
+\begin{itemize}
+\item Crear una nueva función te da la oportunidad de nombrar un grupo de instrucciones, lo que hace que tu programa sea más fácil de leer y depurar.
+
+\item Las funciones pueden hacer que un programa sea más pequeño al eliminar código repetitivo. Más tarde, si haces un cambio, solo tienes que hacerlo en un lugar.
+
+\item Dividir un programa largo en funciones te permite depurar las partes una a la vez y luego ensamblarlas en un todo funcional.
+
+\item Las funciones bien diseñadas son a menudo útiles para muchos programas. Una vez que escribes y depuras una, puedes reutilizarla.
+\end{itemize}
+
+\section{Depuración}
+
+Una de las habilidades más importantes que adquirirás es la depuración. Aunque puede ser frustrante, la depuración es una de las partes más intelectualmente ricas, desafiantes e interesantes de la programación.
+
+En cierto modo, la depuración es como trabajo de detective. Te enfrentas a pistas y tienes que inferir los procesos y eventos que llevaron a los resultados que ves.
+
+La depuración también es como una ciencia experimental. Una vez que tienes una idea sobre qué está saliendo mal, modificas tu programa e intentas de nuevo. Si tu hipótesis era correcta, puedes predecir el resultado de la modificación, y das un paso más cerca de un programa que funcione. Si tu hipótesis era incorrecta, tienes que crear una nueva.
+
+Como señaló Sherlock Holmes: "Cuando has eliminado lo imposible, lo que queda, por improbable que sea, debe ser la verdad." (A. Conan Doyle, \textit{El signo de los cuatro})
+
+Para algunas personas, programar y depurar son la misma cosa. Es decir, programar es el proceso de depurar gradualmente un programa hasta que haga lo que quieres. La idea es que deberías empezar con un programa que funcione y hacer pequeñas modificaciones, depurándolas a medida que avanzas.
+
+\section{Glosario}
+
+\begin{description}
+\item[función:] Una secuencia nombrada de instrucciones que realiza alguna operación útil. Las funciones pueden o no tomar argumentos y pueden o no producir un resultado.
+
+\item[definición de función:] Una instrucción que crea una nueva función, especificando su nombre, parámetros y las instrucciones que contiene.
+
+\item[objeto función:] Un valor creado por una definición de función. El nombre de la función es una variable que se refiere a un objeto función.
+
+\item[encabezado:] La primera línea de una definición de función.
+
+\item[cuerpo:] La secuencia de instrucciones dentro de una definición de función.
+
+\item[parámetro:] Un nombre usado dentro de una función para referirse al valor pasado como argumento.
+
+\item[llamada a función:] Una instrucción que ejecuta una función. Consiste en el nombre de la función seguido de una lista de argumentos entre paréntesis.
+
+\item[argumento:] Un valor proporcionado a una función cuando se llama la función. Este valor se asigna al parámetro correspondiente en la función.
+
+\item[variable local:] Una variable definida dentro de una función. Una variable local solo puede usarse dentro de su función.
+
+\item[valor de retorno:] El resultado de una función. Si una llamada a función se usa como una expresión, el valor de retorno es el valor de la expresión.
+
+\item[función con valor de retorno:] Una función que devuelve un valor.
+
+\item[función vacía:] Una función que siempre devuelve \texttt{None}.
+
+\item[None:] Un valor especial devuelto por las funciones vacías.
+
+\item[módulo:] Un archivo que contiene una colección de funciones relacionadas y otras definiciones.
+
+\item[instrucción import:] Una instrucción que lee un archivo de módulo y crea un objeto módulo.
+
+\item[objeto módulo:] Un valor creado por una instrucción import que proporciona acceso a los valores definidos en un módulo.
+
+\item[notación de punto:] La sintaxis para llamar una función en otro módulo especificando el nombre del módulo seguido de un punto y el nombre de la función.
+
+\item[composición:] Usar una expresión como parte de una expresión más grande, o una instrucción como parte de una instrucción más grande.
+
+\item[flujo de ejecución:] El orden en que se ejecutan las instrucciones.
+
+\item[diagrama de pila:] Una representación gráfica de una pila de funciones, sus variables y los valores a los que se refieren.
+
+\item[marco:] Una caja en un diagrama de pila que representa una llamada a función. Contiene las variables locales y parámetros de la función.
+
+\item[traceback:] Una lista de las funciones que se están ejecutando, impresa cuando ocurre una excepción.
+\end{description}
+
+\section{Ejercicios}
+
+\textbf{Ejercicio 3.1.} Escribe una función llamada \texttt{right\_justify} que tome una cadena llamada \texttt{s} como parámetro e imprima la cadena con suficientes espacios iniciales para que la última letra de la cadena esté en la columna 70 de la pantalla.
+
+\begin{lstlisting}[language=Python]
+>>> right_justify('monty')
+                                                            monty
+\end{lstlisting}
+
+Pista: Usa concatenación y repetición de cadenas. Además, Python proporciona una función incorporada llamada \texttt{len} que devuelve la longitud de una cadena, por lo que el valor de \texttt{len('monty')} es 5.
+
+\textbf{Ejercicio 3.2.} Un objeto función es un valor que puedes asignar a una variable o pasar como argumento. Por ejemplo, \texttt{do\_twice} es una función que toma un objeto función como argumento y lo llama dos veces:
+
+\begin{lstlisting}[language=Python]
+def do_twice(f):
+    f()
+    f()
+\end{lstlisting}
+
+Aquí tienes un ejemplo que usa \texttt{do\_twice} para llamar una función llamada \texttt{print\_spam} dos veces.
+
+\begin{lstlisting}[language=Python]
+def print_spam():
+    print('spam')
+
+do_twice(print_spam)
+\end{lstlisting}
+
+\begin{enumerate}
+\item Escribe este ejemplo en un script y pruébalo.
+
+\item Modifica \texttt{do\_twice} para que tome dos argumentos, un objeto función y un valor, y llame a la función dos veces, pasando el valor como argumento.
+
+\item Copia la definición de \texttt{print\_twice} de anteriormente en este capítulo a tu script.
+
+\item Usa la versión modificada de \texttt{do\_twice} para llamar \texttt{print\_twice} dos veces, pasando \texttt{'spam'} como argumento.
+
+\item Define una nueva función llamada \texttt{do\_four} que tome un objeto función y un valor y llame a la función cuatro veces, pasando el valor como parámetro. Debería haber solo dos instrucciones en el cuerpo de esta función, no cuatro.
+\end{enumerate}
+
+Solución: \href{https://thinkpython.com/code/do\_four.py}{https://thinkpython.com/code/do\_four.py}.
+
+\textbf{Ejercicio 3.3.} Nota: Este ejercicio debe hacerse usando solo las instrucciones y otras características que hemos aprendido hasta ahora.
+
+\begin{enumerate}
+\item Escribe una función que dibuje una cuadrícula como la siguiente:
+
+\begin{lstlisting}
++----+----+
+|    |    |
+|    |    |
+|    |    |
+|    |    |
++----+----+
+|    |    |
+|    |    |
+|    |    |
+|    |    |
++----+----+
+\end{lstlisting}
+
+Pista: para imprimir más de un valor en una línea, puedes imprimir una secuencia de valores separados por comas:
+
+\begin{lstlisting}[language=Python]
+print('+', '-')
+\end{lstlisting}
+
+Por defecto, \texttt{print} avanza a la siguiente línea, pero puedes anular ese comportamiento y poner un espacio al final, así:
+
+\begin{lstlisting}[language=Python]
+print('+', end=' ')
+print('-')
+\end{lstlisting}
+
+La salida de estas instrucciones es \texttt{'+-'} en la misma línea. La salida de la siguiente instrucción \texttt{print} comenzaría en la siguiente línea.
+
+\item Escribe una función que dibuje una cuadrícula similar con cuatro filas y cuatro columnas.
+\end{enumerate}
+
+Solución: \href{https://thinkpython.com/code/grid.py}{https://thinkpython.com/code/grid.py}.
+
+Crédito: Este ejercicio está basado en un ejercicio en Oualline, \textit{Practical C Programming, Third Edition}, O'Reilly Media, 1997.
