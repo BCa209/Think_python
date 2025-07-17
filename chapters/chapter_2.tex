@@ -1,0 +1,291 @@
+% Capítulo 2
+
+\chapter{Variables, expresiones y sentencias}
+Una de las características más poderosas de un lenguaje de programación es la capacidad de manipular variables. Una variable es un nombre que se refiere a un valor.
+
+\section{Declaraciones de asignación}
+
+Una declaración de asignación crea una nueva variable y le da un valor:
+
+\begin{verbatim}
+>>> mensaje = 'Y ahora algo completamente diferente'
+>>> n = 17
+>>> pi = 3.1415926535897932
+\end{verbatim}
+
+Este ejemplo hace tres asignaciones. La primera asigna una cadena a una nueva variable llamada \texttt{mensaje}; la segunda da el entero 17 a \texttt{n}; la tercera asigna el valor (aproximado) de $\pi$ a \texttt{pi}.
+
+Una manera común de representar variables en papel es escribir el nombre con una flecha apuntando a su valor. Este tipo de figura se llama un \textit{diagrama de estado} porque muestra en qué estado está cada una de las variables (piénsalo como el estado mental de la variable). La Figura 2.1 muestra el resultado del ejemplo anterior.
+
+\section{Nombre de Variables}
+Los programadores generalmente eligen nombres para sus variables que sean significativos—documentan para qué se usa la variable.
+
+\begin{figure}[h]
+\centering
+\begin{tabular}{|l|}
+\hline
+\texttt{mensaje} $\longrightarrow$ 'Y ahora algo completamente diferente' \\
+\texttt{n} $\longrightarrow$ 17 \\
+\texttt{pi} $\longrightarrow$ 3.1415926535897932 \\
+\hline
+\end{tabular}
+\caption{Diagrama de estado.}
+\label{fig:diagrama-estado}
+\end{figure}
+
+Los nombres de variables pueden ser tan largos como quieras. Pueden contener tanto letras como números, pero no pueden comenzar con un número. Es legal usar letras mayúsculas, pero es convencional usar solo minúsculas para nombres de variables.
+
+El carácter guión bajo, \texttt{\_}, puede aparecer en un nombre. A menudo se usa en nombres con múltiples palabras, como \texttt{tu\_nombre} o \texttt{velocidad\_aire\_de\_golondrina\_sin\_carga}.
+
+Si le das a una variable un nombre ilegal, obtienes un error de sintaxis:
+
+\begin{lstlisting}
+>>> 76trombones = 'gran desfile'
+SyntaxError: invalid syntax
+>>> mas@ = 1000000
+SyntaxError: invalid syntax
+>>> class = 'Zimurgia Teórica Avanzada'
+SyntaxError: invalid syntax
+\end{lstlisting}
+
+\texttt{76trombones} es ilegal porque comienza con un número. \texttt{mas@} es ilegal porque contiene un carácter ilegal, \texttt{@}. ¿Pero qué está mal con \texttt{class}?
+
+Resulta que \texttt{class} es una de las palabras clave de Python. El intérprete usa palabras clave para reconocer la estructura del programa, y no pueden ser usadas como nombres de variables.
+
+Python 3 tiene estas palabras clave:
+
+\begin{center}
+\begin{tabular}{llllll}
+\texttt{False} & \texttt{None} & \texttt{True} & \texttt{and} & \texttt{as} & \texttt{assert} \\
+\texttt{break} & \texttt{class} & \texttt{continue} & \texttt{def} & \texttt{del} & \texttt{elif} \\
+\texttt{else} & \texttt{except} & \texttt{finally} & \texttt{for} & \texttt{from} & \texttt{global} \\
+\texttt{if} & \texttt{import} & \texttt{in} & \texttt{is} & \texttt{lambda} & \texttt{nonlocal} \\
+\texttt{not} & \texttt{or} & \texttt{pass} & \texttt{raise} & \texttt{return} & \texttt{try} \\
+\texttt{while} & \texttt{with} & \texttt{yield} & & & \\
+\end{tabular}
+\end{center}
+
+No tienes que memorizar esta lista. En la mayoría de entornos de desarrollo, las palabras clave se muestran en un color diferente; si tratas de usar una como nombre de variable, lo sabrás.
+
+\section{Expresiones y declaraciones}
+
+Una \textbf{expresión} es una combinación de valores, variables y operadores. Un valor por sí mismo se considera una expresión, y también lo es una variable, por lo que todas las siguientes son expresiones válidas:
+
+\begin{lstlisting}
+>>> 42
+42
+>>> n
+17
+>>> n + 25
+42
+\end{lstlisting}
+
+Cuando escribes una expresión en el prompt, el intérprete la \textbf{evalúa}, lo que significa que encuentra el valor de la expresión. En este ejemplo, \texttt{n} tiene el valor 17 y \texttt{n + 25} tiene el valor 42.
+
+Una \textbf{declaración} (o sentencia) es una unidad de código que tiene un efecto, como crear una variable o mostrar un valor.
+
+\begin{lstlisting}
+>>> n = 17
+>>> print(n)
+\end{lstlisting}
+
+La primera línea es una declaración de asignación que le da un valor a \texttt{n}. La segunda línea es una declaración \texttt{print} que muestra el valor de \texttt{n}.
+
+Cuando escribes una declaración, el intérprete la \textbf{ejecuta}, lo que significa que hace lo que sea que la declaración indique. En general, las declaraciones no tienen valores.
+
+\section{Modo script}
+
+Hasta ahora hemos ejecutado Python en \textbf{modo interactivo}, lo que significa que interactúas directamente con el intérprete. El modo interactivo es una buena manera de comenzar, pero si estás trabajando con más de unas pocas líneas de código, puede resultar incómodo.
+
+La alternativa es guardar el código en un archivo llamado \textbf{script} y luego ejecutar el intérprete en \textbf{modo script} para ejecutar el script. Por convención, los scripts de Python tienen nombres que terminan con \texttt{.py}.
+
+Si sabes cómo crear y ejecutar un script en tu computadora, estás listo para continuar. De lo contrario, recomiendo usar PythonAnywhere nuevamente. He publicado instrucciones para ejecutar en modo script en \url{http://tinyurl.com/thinkpython2e}.
+
+Debido a que Python proporciona ambos modos, puedes probar fragmentos de código en modo interactivo antes de colocarlos en un script. Pero hay diferencias entre el modo interactivo y el modo script que pueden ser confusas.
+
+Por ejemplo, si estás usando Python como una calculadora, podrías escribir:
+
+\begin{lstlisting}
+>>> miles = 26.2
+>>> miles * 1.61
+42.182
+\end{lstlisting}
+
+La primera línea asigna un valor a \texttt{miles}, pero no tiene efecto visible. La segunda línea es una expresión, por lo que el intérprete la evalúa y muestra el resultado. Resulta que un maratón son aproximadamente 42 kilómetros.
+
+Pero si escribes el mismo código en un script y lo ejecutas, no obtienes ninguna salida en absoluto. En modo script, una expresión por sí sola no tiene efecto visible. Python evalúa la expresión, pero no muestra el resultado. Para mostrar el resultado, necesitas una declaración \texttt{print} como esta:
+
+\begin{lstlisting}
+miles = 26.2
+print(miles * 1.61)
+\end{lstlisting}
+
+Este comportamiento puede ser confuso al principio.
+
+Para verificar tu comprensión, escribe las siguientes declaraciones en el intérprete de Python y observa lo que hacen:
+
+\begin{lstlisting}
+5
+x = 5
+x + 1
+\end{lstlisting}
+
+Ahora coloca las mismas declaraciones en un script y ejecútalo. ¿Cuál es la salida? Modifica el script transformando cada expresión en una declaración \texttt{print} y luego ejecútalo nuevamente.
+
+\section{Orden de las operaciones}
+
+Cuando una expresión contiene más de un operador, el orden de evaluación depende del \textbf{orden de las operaciones}. Para los operadores matemáticos, Python sigue la convención matemática. El acrónimo PEMDAS es una forma útil de recordar las reglas:
+
+\begin{itemize}
+\item \textbf{Paréntesis (Parentheses)} tienen la mayor precedencia y pueden usarse para forzar que una expresión se evalúe en el orden que desees. Dado que las expresiones entre paréntesis se evalúan primero, \texttt{2 * (3-1)} es 4, y \texttt{(1+1)**(5-2)} es 8. También puedes usar paréntesis para hacer que una expresión sea más fácil de leer, como en \texttt{(minute * 100) / 60}, incluso si no cambia el resultado.
+
+\item \textbf{Exponenciación (Exponentiation)} tiene la siguiente mayor precedencia, por lo que \texttt{1 + 2**3} es 9, no 27, y \texttt{2 * 3**2} es 18, no 36.
+
+\item \textbf{Multiplicación y División (Multiplication and Division)} tienen mayor precedencia que la Suma y la Resta. Por lo tanto, \texttt{2*3-1} es 5, no 4, y \texttt{6+4/2} es 8, no 5.
+
+\item Los \textbf{operadores con la misma precedencia} se evalúan de izquierda a derecha (excepto la exponenciación). Por lo tanto, en la expresión \texttt{degrees / 2 * pi}, la división ocurre primero y el resultado se multiplica por pi. Para dividir por $2\pi$, puedes usar paréntesis o escribir \texttt{degrees / 2 / pi}.
+\end{itemize}
+
+No me esfuerzo mucho en recordar la precedencia de los operadores. Si no puedo determinarla solo mirando la expresión, uso paréntesis para hacerla obvia.
+
+\section{Operaciones con cadenas}
+
+En general, no puedes realizar operaciones matemáticas con cadenas, incluso si las cadenas parecen números, por lo que las siguientes son ilegales:
+
+\begin{lstlisting}
+'chinese'-'food'
+'eggs'/'easy'
+'third'*'a charm'
+\end{lstlisting}
+
+Pero hay dos excepciones: \texttt{+} y \texttt{*}.
+
+El operador \texttt{+} realiza \textbf{concatenación de cadenas}, lo que significa que une las cadenas conectándolas de extremo a extremo. Por ejemplo:
+
+\begin{lstlisting}
+>>> first = 'throat'
+>>> second = 'warbler'
+>>> first + second
+throatwarbler
+\end{lstlisting}
+
+El operador \texttt{*} también funciona con cadenas; realiza \textbf{repetición}. 
+Por ejemplo, \texttt{'Spam'*3} es \texttt{'SpamSpamSpam'}. Si uno de los valores es una cadena, el otro tiene que ser un entero.
+
+Este uso de \texttt{+} y \texttt{*} tiene sentido por analogía con la suma y la multiplicación. 
+Así como \texttt{4*3} es equivalente a \texttt{4+4+4}, esperamos que \texttt{'Spam'*3} sea lo mismo que \texttt{'Spam'+'Spam'+'Spam'}, y así es.
+
+Por otro lado, hay una diferencia significativa entre la concatenación y repetición de cadenas y la suma y multiplicación de enteros. ¿Puedes pensar en una propiedad que tiene la suma que la concatenación de cadenas no tiene?
+
+\section{Comentarios}
+
+A medida que los programas se vuelven más grandes y complicados, se vuelven más difíciles de leer. Los lenguajes formales son densos, y a menudo es difícil mirar un fragmento de código y determinar qué está haciendo, o por qué.
+
+Por esta razón, es una buena idea agregar notas a tus programas para explicar en lenguaje natural lo que el programa está haciendo. Estas notas se llaman \textbf{comentarios}, y comienzan con el símbolo \texttt{\#}:
+
+\begin{lstlisting}
+# compute the percentage of the hour that has elapsed
+percentage = (minute * 100) / 60
+\end{lstlisting}
+
+En este caso, el comentario aparece en una línea por sí mismo. También puedes poner comentarios al final de una línea:
+
+\begin{lstlisting}
+percentage = (minute * 100) / 60 # percentage of an hour
+\end{lstlisting}
+
+Todo desde el \texttt{\#} hasta el final de la línea es ignorado—no tiene efecto en la ejecución del programa.
+
+Los comentarios son más útiles cuando documentan características no obvias del código. Es razonable asumir que el lector puede determinar qué hace el código; es más útil explicar por qué.
+
+Este comentario es redundante con el código e inútil:
+
+\begin{lstlisting}
+v = 5 # assign 5 to v
+\end{lstlisting}
+
+Este comentario contiene información útil que no está en el código:
+
+\begin{lstlisting}
+v = 5 # velocity in meters/second
+\end{lstlisting}
+
+Los buenos nombres de variables pueden reducir la necesidad de comentarios, pero los nombres largos pueden hacer que las expresiones complejas sean difíciles de leer, por lo que hay un equilibrio que considerar.
+
+\section{Depuración}
+
+En un programa pueden ocurrir tres tipos de errores: errores de sintaxis, errores de ejecución y errores semánticos. Es útil distinguir entre ellos para rastrearlos más rápidamente.
+
+\textbf{Error de sintaxis:} ``Sintaxis'' se refiere a la estructura de un programa y las reglas sobre esa estructura. Por ejemplo, los paréntesis tienen que venir en pares coincidentes, por lo que \texttt{(1 + 2)} es legal, pero \texttt{8)} es un error de sintaxis.
+
+Si hay un error de sintaxis en cualquier parte de tu programa, Python muestra un mensaje de error y se cierra, y no podrás ejecutar el programa. Durante las primeras semanas de tu carrera como programador, podrías pasar mucho tiempo rastreando errores de sintaxis. A medida que ganes experiencia, cometerás menos errores y los encontrarás más rápido.
+
+\textbf{Error de ejecución:} El segundo tipo de error es un error de ejecución, llamado así porque el error no aparece hasta después de que el programa haya comenzado a ejecutarse. Estos errores también se llaman excepciones porque usualmente indican que algo excepcional (y malo) ha ocurrido.
+
+Los errores de ejecución son raros en los programas simples que verás en los primeros capítulos, por lo que podría pasar un tiempo antes de que encuentres uno.
+
+\textbf{Error semántico:} El tercer tipo de error es ``semántico'', lo que significa relacionado con el significado. Si hay un error semántico en tu programa, se ejecutará sin generar mensajes de error, pero no hará lo correcto. Hará algo diferente. Específicamente, hará lo que le dijiste que hiciera.
+
+Identificar errores semánticos puede ser complicado porque requiere que trabajes hacia atrás, mirando la salida del programa y tratando de averiguar qué está haciendo.
+
+\section{Glosario}
+
+\textbf{variable:} Un nombre que se refiere a un valor.
+
+\textbf{asignación:} Una declaración que asigna un valor a una variable.
+
+\textbf{diagrama de estado:} Una representación gráfica de un conjunto de variables y los valores a los que se refieren.
+
+\textbf{palabra clave:} Una palabra reservada que se usa para analizar un programa; no puedes usar palabras clave como \texttt{if}, \texttt{def} y \texttt{while} como nombres de variables.
+
+\textbf{operando:} Uno de los valores sobre los que opera un operador.
+
+\textbf{expresión:} Una combinación de variables, operadores y valores que representa un resultado único.
+
+\textbf{evaluar:} Simplificar una expresión realizando las operaciones en orden para obtener un valor único.
+
+\textbf{declaración:} Una sección de código que representa un comando o acción. Hasta ahora, las declaraciones que hemos visto son asignaciones y declaraciones \texttt{print}.
+
+\textbf{ejecutar:} Ejecutar una declaración y hacer lo que dice.
+
+\textbf{modo interactivo:} Una forma de usar el intérprete de Python escribiendo código en el prompt.
+
+\textbf{modo script:} Una forma de usar el intérprete de Python para leer código de un script y ejecutarlo.
+
+\textbf{script:} Un programa almacenado en un archivo.
+
+\textbf{orden de las operaciones:} Reglas que gobiernan el orden en que se evalúan las expresiones que involucran múltiples operadores y operandos.
+
+\textbf{concatenar:} Unir dos operandos de extremo a extremo.
+
+\textbf{comentario:} Información en un programa que está destinada a otros programadores (o cualquiera que lea el código fuente) y no tiene efecto en la ejecución del programa.
+
+\textbf{error de sintaxis:} Un error en un programa que hace imposible analizarlo (y por lo tanto imposible de interpretar).
+
+\textbf{excepción:} Un error que se detecta mientras el programa se está ejecutando.
+
+\textbf{semántica:} El significado de un programa.
+
+\textbf{error semántico:} Un error en un programa que hace que haga algo diferente de lo que el programador pretendía.
+
+\section{Ejercicios}
+
+\textbf{Ejercicio 2.1.} Repitiendo mi consejo del capítulo anterior, siempre que aprendas una nueva característica, deberías probarla en modo interactivo y cometer errores a propósito para ver qué sale mal.
+
+\begin{itemize}
+\item Hemos visto que \texttt{n = 42} es legal. ¿Qué tal \texttt{42 = n}?
+\item ¿Qué tal \texttt{x = y = 1}?
+\item En algunos lenguajes, cada declaración termina con un punto y coma, \texttt{;}. ¿Qué pasa si pones un punto y coma al final de una declaración de Python?
+\item ¿Qué pasa si pones un punto al final de una declaración?
+\item En notación matemática puedes multiplicar $x$ e $y$ así: $xy$. ¿Qué pasa si intentas eso en Python?
+\end{itemize}
+
+\textbf{Ejercicio 2.2.} Practica usando el intérprete de Python como una calculadora:
+
+\begin{enumerate}
+\item El volumen de una esfera con radio $r$ es $\frac{4}{3}\pi r^3$. ¿Cuál es el volumen de una esfera con radio 5?
+
+\item Supón que el precio de portada de un libro es \$24.95, pero las librerías obtienen un 40\% de descuento. Los costos de envío son \$3 para la primera copia y 75 centavos para cada copia adicional. ¿Cuál es el costo total al por mayor para 60 copias?
+
+\item Si dejo mi casa a las 6:52 am y corro 1 milla a un ritmo fácil (8:15 por milla), luego 3 millas a ritmo tempo (7:12 por milla) y 1 milla a ritmo fácil nuevamente, ¿a qué hora llego a casa para el desayuno?
+\end{enumerate}
