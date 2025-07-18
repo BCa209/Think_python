@@ -1,0 +1,422 @@
+\chapter{Clases y métodos}
+
+Aunque hemos estado usando algunas características orientadas a objetos de Python, los programas de los últimos dos capítulos no son realmente orientados a objetos porque no representan las relaciones entre tipos definidos por el programador y las funciones que operan sobre ellos. El siguiente paso es transformar esas funciones en métodos que hagan explícitas estas relaciones.
+
+Los ejemplos de código de este capítulo están disponibles en \url{https://thinkpython.com/code/Time2.py}, y las soluciones a los ejercicios están en \url{https://thinkpython.com/code/Point2_soln.py}.
+
+\section{Características orientadas a objetos}
+
+Python es un \textbf{lenguaje de programación orientado a objetos}, lo que significa que proporciona características que soportan programación orientada a objetos, que tiene estas características definitorias:
+
+\begin{itemize}
+\item Los programas incluyen definiciones de clases y métodos.
+\item La mayor parte del cálculo se expresa en términos de operaciones sobre objetos.
+\item Los objetos a menudo representan cosas del mundo real, y los métodos a menudo corresponden a formas en que las cosas del mundo real interactúan.
+\end{itemize}
+
+Por ejemplo, la clase Time definida en el Capítulo 16 corresponde a cómo las personas registran la hora del día, y las funciones que definimos corresponden a las cosas que la gente hace con las horas. De manera similar, las clases Point y Rectangle del Capítulo 15 corresponden a los conceptos matemáticos de punto y rectángulo.
+
+Hasta ahora, no hemos aprovechado las características que Python proporciona para soportar programación orientada a objetos. Estas características no son estrictamente necesarias; la mayoría proporciona sintaxis alternativa para cosas que ya hemos hecho. Pero en muchos casos, la alternativa es más concisa y transmite con mayor precisión la estructura del programa.
+
+Por ejemplo, en Time1.py no hay una conexión obvia entre la definición de clase y las definiciones de funciones que siguen. Tras examinarlo, es aparente que cada función toma al menos un objeto Time como argumento.
+
+\section{Impresión de objetos}
+
+En el Capítulo 16, definimos una clase llamada Time y en la Sección 16.1, escribiste una función llamada print\_time:
+
+\begin{lstlisting}[language=Python]
+class Time:
+    """Representa la hora del día."""
+    
+def print_time(time):
+    print('%.2d:%.2d:%.2d' % (time.hour, time.minute, time.second))
+\end{lstlisting}
+
+Para llamar a esta función, debes pasar un objeto Time como argumento:
+
+\begin{lstlisting}[language=Python]
+>>> start = Time()
+>>> start.hour = 9
+>>> start.minute = 45
+>>> start.second = 00
+>>> print_time(start)
+09:45:00
+\end{lstlisting}
+
+Para hacer de print\_time un método, todo lo que tenemos que hacer es mover la definición de la función dentro de la definición de la clase. Observa el cambio en la indentación.
+
+\begin{lstlisting}[language=Python]
+class Time:
+    def print_time(time):
+        print('%.2d:%.2d:%.2d' % (time.hour, time.minute, time.second))
+\end{lstlisting}
+
+Ahora hay dos formas de llamar a print\_time. La primera (y menos común) es usar sintaxis de función:
+
+\begin{lstlisting}[language=Python]
+>>> Time.print_time(start)
+09:45:00
+\end{lstlisting}
+
+En este uso de la notación de punto, Time es el nombre de la clase, y print\_time es el nombre del método. start se pasa como parámetro.
+
+La segunda (y más concisa) es usar sintaxis de método:
+
+\begin{lstlisting}[language=Python]
+>>> start.print_time()
+09:45:00
+\end{lstlisting}
+
+\section{Otro ejemplo}
+
+En este uso de la notación de punto, print\_time es el nombre del método (nuevamente), y start es el objeto sobre el que se invoca el método, llamado sujeto. Así como el sujeto de una oración es de lo que trata la oración, el sujeto de una invocación de método es de lo que trata el método.
+
+Dentro del método, el sujeto se asigna al primer parámetro, por lo que en este caso start se asigna a time.
+
+Por convención, el primer parámetro de un método se llama self, por lo que sería más común escribir print\_time así:
+
+\begin{lstlisting}[language=Python]
+class Time:
+    def print_time(self):
+        print('%.2d:%.2d:%.2d' % (self.hour, self.minute, self.second))
+\end{lstlisting}
+
+La razón de esta convención es una metáfora implícita:
+
+\begin{itemize}
+\item La sintaxis para una llamada a función, print\_time(start), sugiere que la función es el agente activo. Dice algo como: "¡Oye print\_time! Aquí hay un objeto para que imprimas."
+\item En programación orientada a objetos, los objetos son los agentes activos. Una invocación de método como start.print\_time() dice "¡Oye start! Por favor imprímete."
+\end{itemize}
+
+Este cambio de perspectiva podría ser más educado, pero no es obvio que sea útil. En los ejemplos que hemos visto hasta ahora, puede que no lo sea. Pero a veces transferir la responsabilidad de las funciones a los objetos permite escribir funciones (o métodos) más versátiles y facilita el mantenimiento y reutilización del código.
+
+Como ejercicio, reescribe time\_to\_int (de la Sección 16.4) como un método. Podrías sentirte tentado a reescribir int\_to\_time como un método también, pero eso no tendría mucho sentido porque no habría ningún objeto sobre el que invocarlo.
+
+\section{Un ejemplo más complicado}
+
+Aquí hay una versión de increment (de la Sección 16.3) reescrita como método:
+
+\begin{lstlisting}[language=Python]
+# dentro de la clase Time:
+def increment(self, seconds):
+    seconds += self.time_to_int()
+    return int_to_time(seconds)
+\end{lstlisting}
+
+Esta versión asume que time\_to\_int está escrito como método. Además, nota que es una función pura, no un modificador.
+
+Aquí está cómo invocarías increment:
+
+\begin{lstlisting}[language=Python]
+>>> start.print_time()
+09:45:00
+>>> end = start.increment(1337)
+>>> end.print_time()
+10:07:17
+\end{lstlisting}
+
+El sujeto, start, se asigna al primer parámetro, self. El argumento, 1337, se asigna al segundo parámetro, seconds.
+
+Este mecanismo puede ser confuso, especialmente si cometes un error. Por ejemplo, si invocas increment con dos argumentos, obtienes:
+
+\begin{lstlisting}[language=Python]
+>>> end = start.increment(1337, 460)
+TypeError: increment() takes 2 positional arguments but 3 were given
+\end{lstlisting}
+
+El mensaje de error es inicialmente confuso, porque solo hay dos argumentos entre paréntesis. Pero el sujeto también se considera un argumento, así que en total son tres.
+
+Por cierto, un argumento posicional es un argumento que no tiene un nombre de parámetro; es decir, no es un argumento de palabra clave. En esta llamada a función:
+
+\begin{lstlisting}[language=Python]
+sketch(parrot, cage, dead=True)
+\end{lstlisting}
+
+parrot y cage son posicionales, y dead es un argumento de palabra clave.
+
+\section{El método init}
+
+El método \_\_init\_\_ (abreviatura de "inicialización") es un método especial que se invoca cuando se instancia un objeto. Su nombre completo es \_\_init\_\_ (dos caracteres de subrayado, seguidos de init, y luego dos más). Un método \_\_init\_\_ para la clase Time podría verse así:
+
+\begin{lstlisting}[language=Python]
+# dentro de la clase Time:
+def __init__(self, hour=0, minute=0, second=0):
+    self.hour = hour
+    self.minute = minute
+    self.second = second
+\end{lstlisting}
+
+Es común que los parámetros de \_\_init\_\_ tengan los mismos nombres que los atributos. La declaración:
+
+\begin{lstlisting}[language=Python]
+self.hour = hour
+\end{lstlisting}
+
+almacena el valor del parámetro hour como un atributo de self.
+
+Los parámetros son opcionales, así que si llamas a Time sin argumentos, obtienes los valores predeterminados.
+
+\begin{lstlisting}[language=Python]
+>>> time = Time()
+>>> time.print_time()
+00:00:00
+\end{lstlisting}
+
+Si proporcionas un argumento, anula hour:
+
+\begin{lstlisting}[language=Python]
+>>> time = Time(9)
+>>> time.print_time()
+09:00:00
+\end{lstlisting}
+
+Si proporcionas dos argumentos, anulan hour y minute:
+
+\begin{lstlisting}[language=Python]
+>>> time = Time(9, 45)
+>>> time.print_time()
+09:45:00
+\end{lstlisting}
+
+Y si proporcionas tres argumentos, anulan los tres valores predeterminados.
+
+Como ejercicio, escribe un método \_\_init\_\_ para la clase Point que tome x e y como parámetros opcionales y los asigne a los atributos correspondientes.
+
+\section{El método \_\_str\_\_}
+
+\_\_str\_\_ es un método especial, como \_\_init\_\_, que se supone debe devolver una representación en cadena de un objeto.
+
+Por ejemplo, aquí hay un método str para objetos Time:
+
+\begin{lstlisting}[language=Python]
+# dentro de la clase Time:
+def __str__(self):
+    return '%.2d:%.2d:%.2d' % (self.hour, self.minute, self.second)
+\end{lstlisting}
+
+Cuando imprimes un objeto, Python invoca el método str:
+
+\begin{lstlisting}[language=Python]
+>>> time = Time(9, 45)
+>>> print(time)
+09:45:00
+\end{lstlisting}
+
+Cuando escribo una nueva clase, casi siempre comienzo escribiendo \_\_init\_\_, que facilita la instanciación de objetos, y \_\_str\_\_, que es útil para depuración.
+
+Como ejercicio, escribe un método \_\_str\_\_ para la clase Point. Crea un objeto Point e imprímelo.
+
+\section{Sobrecarga de operadores}
+
+Al definir otros métodos especiales, puedes especificar el comportamiento de los operadores en tipos definidos por el programador. Por ejemplo, si defines un método llamado \_\_add\_\_ para la clase Time, puedes usar el operador + en objetos Time.
+
+Así es como podría verse la definición:
+
+\begin{lstlisting}[language=Python]
+# dentro de la clase Time:
+def __add__(self, other):
+    seconds = self.time_to_int() + other.time_to_int()
+    return int_to_time(seconds)
+\end{lstlisting}
+
+Y así es como podrías usarlo:
+
+\begin{lstlisting}[language=Python]
+>>> start = Time(9, 45)
+>>> duration = Time(1, 35)
+>>> print(start + duration)
+11:20:00
+\end{lstlisting}
+
+Cuando aplicas el operador + a objetos Time, Python invoca \_\_add\_\_. Cuando imprimes el resultado, Python invoca \_\_str\_\_. ¡Así que hay muchas cosas sucediendo detrás de escena!
+
+Cambiar el comportamiento de un operador para que funcione con tipos definidos por el programador se llama \textbf{sobrecarga de operadores}. Para cada operador en Python hay un método especial correspondiente, como \_\_add\_\_. Para más detalles, consulta \url{http://docs.python.org/3/reference/datamodel.html#specialnames}.
+
+Como ejercicio, escribe un método add para la clase Point.
+
+\section{Dispatch basado en tipos}
+
+En la sección anterior sumamos dos objetos Time, pero también podrías querer sumar un entero a un objeto Time. La siguiente es una versión de \_\_add\_\_ que verifica el tipo de other e invoca add\_time o increment:
+
+\begin{lstlisting}[language=Python]
+# dentro de la clase Time:
+def __add__(self, other):
+    if isinstance(other, Time):
+        return self.add_time(other)
+    else:
+        return self.increment(other)
+
+def add_time(self, other):
+    seconds = self.time_to_int() + other.time_to_int()
+    return int_to_time(seconds)
+
+def increment(self, seconds):
+    seconds += self.time_to_int()
+    return int_to_time(seconds)
+\end{lstlisting}
+
+La función incorporada isinstance toma un valor y un objeto de clase, y devuelve True si el valor es una instancia de la clase.
+
+Si other es un objeto Time, \_\_add\_\_ invoca add\_time. De lo contrario, asume que el parámetro es un número e invoca increment. Esta operación se llama \textbf{dispatch basado en tipos} porque dirige el cálculo a diferentes métodos basados en el tipo de los argumentos.
+
+Aquí hay ejemplos que usan el operador + con diferentes tipos:
+
+\begin{lstlisting}[language=Python]
+>>> start = Time(9, 45)
+>>> duration = Time(1, 35)
+>>> print(start + duration)
+11:20:00
+>>> print(start + 1337)
+10:07:17
+\end{lstlisting}
+
+Desafortunadamente, esta implementación de la suma no es conmutativa. Si el entero es el primer operando, obtienes:
+
+\begin{lstlisting}[language=Python]
+>>> print(1337 + start)
+TypeError: unsupported operand type(s) for +: 'int' and 'instance'
+\end{lstlisting}
+
+El problema es que, en lugar de pedirle al objeto Time que sume un entero, Python le está pidiendo a un entero que sume un objeto Time, y no sabe cómo. Pero hay una solución inteligente para este problema: el método especial \_\_radd\_\_, que significa "suma del lado derecho". Este método se invoca cuando un objeto Time aparece en el lado derecho del operador +. Aquí está la definición:
+
+\begin{lstlisting}[language=Python]
+# dentro de la clase Time:
+def __radd__(self, other):
+    return self.__add__(other)
+\end{lstlisting}
+
+Y así es como se usa:
+
+\begin{lstlisting}[language=Python]
+>>> print(1337 + start)
+10:07:17
+\end{lstlisting}
+
+Como ejercicio, escribe un método add para Points que funcione con un objeto Point o una tupla:
+
+\begin{itemize}
+\item Si el segundo operando es un Point, el método debería devolver un nuevo Point cuya coordenada x sea la suma de las coordenadas x de los operandos, y lo mismo para las coordenadas y.
+\item Si el segundo operando es una tupla, el método debería sumar el primer elemento de la tupla a la coordenada x y el segundo elemento a la coordenada y, y devolver un nuevo Point con el resultado.
+\end{itemize}
+
+\section{Polimorfismo}
+
+El dispatch basado en tipos es útil cuando es necesario, pero (afortunadamente) no siempre lo es. A menudo puedes evitarlo escribiendo funciones que funcionen correctamente con argumentos de diferentes tipos.
+
+Muchas de las funciones que escribimos para cadenas también funcionan para otros tipos de secuencias. Por ejemplo, en la Sección 11.2 usamos histogram para contar el número de veces que aparece cada letra en una palabra.
+
+\begin{lstlisting}[language=Python]
+def histogram(s):
+    d = dict()
+    for c in s:
+        if c not in d:
+            d[c] = 1
+        else:
+            d[c] = d[c]+1
+    return d
+\end{lstlisting}
+
+Esta función también funciona para listas, tuplas e incluso diccionarios, siempre que los elementos de s sean hashables, para que puedan usarse como claves en d.
+
+\begin{lstlisting}[language=Python]
+>>> t = ['spam', 'egg', 'spam', 'spam', 'bacon', 'spam']
+>>> histogram(t)
+{'bacon': 1, 'egg': 1, 'spam': 4}
+\end{lstlisting}
+
+Las funciones que funcionan con varios tipos se llaman \textbf{polimórficas}. El polimorfismo puede facilitar la reutilización de código. Por ejemplo, la función incorporada sum, que suma los elementos de una secuencia, funciona siempre que los elementos de la secuencia soporten la suma.
+
+Como los objetos Time proporcionan un método add, funcionan con sum:
+
+\begin{lstlisting}[language=Python]
+>>> t1 = Time(7, 43)
+>>> t2 = Time(7, 41)
+>>> t3 = Time(7, 37)
+>>> total = sum([t1, t2, t3])
+>>> print(total)
+23:01:00
+\end{lstlisting}
+
+En general, si todas las operaciones dentro de una función funcionan con un tipo dado, la función funciona con ese tipo.
+
+El mejor tipo de polimorfismo es el no intencional, donde descubres que una función que ya escribiste puede aplicarse a un tipo que nunca habías planeado.
+
+\section{Depuración}
+
+Es legal agregar atributos a objetos en cualquier punto de la ejecución de un programa, pero si tienes objetos del mismo tipo que no tienen los mismos atributos, es fácil cometer errores. Se considera una buena práctica inicializar todos los atributos de un objeto en el método \_\_init\_\_.
+
+Si no estás seguro de si un objeto tiene un atributo en particular, puedes usar la función incorporada hasattr (ver Sección 15.7).
+
+Otra forma de acceder a los atributos es con la función incorporada vars, que toma un objeto y devuelve un diccionario que mapea nombres de atributos (como cadenas) a sus valores:
+
+\begin{lstlisting}[language=Python]
+>>> p = Point(3, 4)
+>>> vars(p)
+{'y': 4, 'x': 3}
+\end{lstlisting}
+
+Para propósitos de depuración, podrías encontrar útil tener a mano esta función:
+
+\begin{lstlisting}[language=Python]
+def print_attributes(obj):
+    for attr in vars(obj):
+        print(attr, getattr(obj, attr))
+\end{lstlisting}
+
+print\_attributes recorre el diccionario e imprime cada nombre de atributo y su valor correspondiente.
+
+La función incorporada getattr toma un objeto y un nombre de atributo (como cadena) y devuelve el valor del atributo.
+
+\section{Interfaz e implementación}
+
+Uno de los objetivos del diseño orientado a objetos es hacer que el software sea más mantenible, lo que significa que puedes mantener el programa funcionando cuando otras partes del sistema cambian, y modificarlo para cumplir con nuevos requisitos.
+
+Un principio de diseño que ayuda a lograr este objetivo es mantener las interfaces separadas de las implementaciones. Para objetos, esto significa que los métodos que una clase proporciona no deberían depender de cómo se representan los atributos.
+
+Por ejemplo, en este capítulo desarrollamos una clase que representa una hora del día. Los métodos proporcionados por esta clase incluyen time\_to\_int, is\_after y add\_time.
+
+Podríamos implementar estos métodos de varias formas. Los detalles de la implementación dependen de cómo representemos el tiempo. En este capítulo, los atributos de un objeto Time son hour, minute y second.
+
+Como alternativa, podríamos reemplazar estos atributos con un único entero que represente el número de segundos desde la medianoche. Esta implementación haría algunos métodos, como is\_after, más fáciles de escribir, pero otros más difíciles.
+
+Después de implementar una nueva clase, podrías descubrir una mejor implementación. Si otras partes del programa están usando tu clase, podría llevar tiempo y ser propenso a errores cambiar la interfaz.
+
+Pero si diseñaste la interfaz cuidadosamente, puedes cambiar la implementación sin cambiar la interfaz, lo que significa que otras partes del programa no tienen que cambiar.
+
+\section{Glosario}
+
+\begin{description}
+\item[lenguaje orientado a objetos:] Un lenguaje que proporciona características, como tipos definidos por el programador y métodos, que facilitan la programación orientada a objetos.
+
+\item[programación orientada a objetos:] Un estilo de programación en el que los datos y las operaciones que los manipulan se organizan en clases y métodos.
+
+\item[método:] Una función que se define dentro de una definición de clase y se invoca en instancias de esa clase.
+
+\item[sujeto:] El objeto sobre el que se invoca un método.
+
+\item[argumento posicional:] Un argumento que no incluye un nombre de parámetro, por lo que no es un argumento de palabra clave.
+
+\item[sobrecarga de operadores:] Cambiar el comportamiento de un operador como + para que funcione con un tipo definido por el programador.
+
+\item[dispatch basado en tipos:] Un patrón de programación que verifica el tipo de un operando e invoca diferentes funciones para diferentes tipos.
+
+\item[polimórfico:] Perteneciente a una función que puede trabajar con más de un tipo.
+\end{description}
+
+\section{Ejercicios}
+
+\textbf{Ejercicio 17.1.} Descarga el código de este capítulo desde \url{https://thinkpython.com/code/Time2.py}. Cambia los atributos de Time para que sea un único entero que represente segundos desde la medianoche. Luego modifica los métodos (y la función int\_to\_time) para que trabajen con la nueva implementación. No deberías tener que modificar el código de prueba en main. Cuando termines, la salida debería ser la misma que antes. Solución: \url{https://thinkpython.com/code/Time2_soln.py}.
+
+\textbf{Ejercicio 17.2.} Este ejercicio es una advertencia sobre uno de los errores más comunes, y difíciles de encontrar, en Python. Escribe una definición para una clase llamada Kangaroo con los siguientes métodos:
+
+\begin{enumerate}
+\item Un método \_\_init\_\_ que inicialice un atributo llamado pouch\_contents a una lista vacía.
+\item Un método llamado put\_in\_pouch que tome un objeto de cualquier tipo y lo agregue a pouch\_contents.
+\item Un método \_\_str\_\_ que devuelva una representación en cadena del objeto Kangaroo y el contenido de la bolsa.
+\end{enumerate}
+
+Prueba tu código creando dos objetos Kangaroo, asignándolos a variables llamadas kanga y roo, y luego agregando roo al contenido de la bolsa de kanga.
+
+Descarga \url{https://thinkpython.com/code/BadKangaroo.py}. Contiene una solución al problema anterior con un gran y desagradable error. Encuentra y corrige el error.
+
+Si te quedas atascado, puedes descargar \url{https://thinkpython.com/code/GoodKangaroo.py}, que explica el problema y demuestra una solución.

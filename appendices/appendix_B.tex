@@ -1,0 +1,316 @@
+\appendix
+
+\chapter{Análisis de Algoritmos}
+
+Este apéndice es un extracto editado de \textit{Think Complexity}, por Allen B. Downey, también publicado por O'Reilly Media (2012). Cuando termines con este libro, quizás quieras continuar con ese.
+
+El \textbf{análisis de algoritmos} es una rama de la informática que estudia el rendimiento de los algoritmos, especialmente su tiempo de ejecución y requisitos de espacio. Ver \url{http://en.wikipedia.org/wiki/Analysis_of_algorithms}.
+
+El objetivo práctico del análisis de algoritmos es predecir el rendimiento de diferentes algoritmos para guiar decisiones de diseño.
+
+Durante la campaña presidencial de Estados Unidos en 2008, al candidato Barack Obama se le pidió que realizara un análisis improvisado cuando visitó Google. El director ejecutivo Eric Schmidt le preguntó en broma por "la forma más eficiente de ordenar un millón de enteros de 32 bits". Obama aparentemente había sido advertido, porque respondió rápidamente: "Creo que el ordenamiento de burbuja sería la forma incorrecta de hacerlo". Ver \url{http://www.youtube.com/watch?v=k4RRi_ntQc8}.
+
+Esto es cierto: el ordenamiento de burbuja es conceptualmente simple pero lento para conjuntos de datos grandes. La respuesta que Schmidt probablemente buscaba es "ordenamiento por radix" (\url{http://en.wikipedia.org/wiki/Radix_sort})\footnote{Pero si te hacen una pregunta como esta en una entrevista, creo que una mejor respuesta es: "La forma más rápida de ordenar un millón de enteros es usar cualquier función de ordenamiento que proporcione el lenguaje que estoy usando. Su rendimiento es suficiente para la gran mayoría de las aplicaciones, pero si resultara que mi aplicación es demasiado lenta, usaría un perfilador para ver dónde se está gastando el tiempo. Si pareciera que un algoritmo de ordenamiento más rápido tendría un efecto significativo en el rendimiento, entonces buscaría una buena implementación del ordenamiento por radix."}.
+
+El objetivo del análisis de algoritmos es hacer comparaciones significativas entre algoritmos, pero hay algunos problemas:
+
+\begin{itemize}
+    \item El rendimiento relativo de los algoritmos puede depender de las características del hardware, por lo que un algoritmo podría ser más rápido en la Máquina A y otro en la Máquina B. La solución general a este problema es especificar un \textbf{modelo de máquina} y analizar el número de pasos, u operaciones, que un algoritmo requiere bajo un modelo dado.
+    
+    \item El rendimiento relativo puede depender de los detalles del conjunto de datos. Por ejemplo, algunos algoritmos de ordenamiento se ejecutan más rápido si los datos ya están parcialmente ordenados; otros algoritmos se ejecutan más lento en este caso. Una forma común de evitar este problema es analizar el \textbf{peor caso}. A veces es útil analizar el rendimiento del caso promedio, pero eso suele ser más difícil y no siempre es obvio sobre qué conjunto de casos promediar.
+    
+    \item El rendimiento relativo también depende del tamaño del problema. Un algoritmo de ordenamiento que es rápido para listas pequeñas puede ser lento para listas largas. La solución habitual a este problema es expresar el tiempo de ejecución (o el número de operaciones) como una función del tamaño del problema, y agrupar las funciones en categorías dependiendo de qué tan rápido crecen a medida que aumenta el tamaño del problema.
+\end{itemize}
+
+Lo bueno de este tipo de comparación es que permite una clasificación simple de los algoritmos. Por ejemplo, si sé que el tiempo de ejecución del Algoritmo A tiende a ser proporcional al tamaño de la entrada, \( n \), y el Algoritmo B tiende a ser proporcional a \( n^2 \), entonces espero que A sea más rápido que B, al menos para valores grandes de \( n \).
+
+Este tipo de análisis viene con algunas advertencias, pero las veremos más adelante.
+
+\section{Orden de crecimiento}
+
+Supongamos que has analizado dos algoritmos y has expresado sus tiempos de ejecución en términos del tamaño de la entrada: el Algoritmo A toma \( 100n + 1 \) pasos para resolver un problema de tamaño \( n \); el Algoritmo B toma \( n^2 + n + 1 \) pasos.
+
+La siguiente tabla muestra el tiempo de ejecución de estos algoritmos para diferentes tamaños de problema:
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+Tamaño de entrada & Tiempo de Algoritmo A & Tiempo de Algoritmo B \\
+\hline
+10 & 1,001 & 111 \\
+100 & 10,001 & 10,101 \\
+1,000 & 100,001 & 1,001,001 \\
+10,000 & 1,000,001 & 100,010,001 \\
+\hline
+\end{tabular}
+\end{center}
+
+Para \( n = 10 \), el Algoritmo A se ve bastante mal; tarda casi 10 veces más que el Algoritmo B. Pero para \( n = 100 \) son aproximadamente iguales, y para valores más grandes, A es mucho mejor.
+
+La razón fundamental es que para valores grandes de \( n \), cualquier función que contenga un término \( n^2 \) crecerá más rápido que una función cuyo término principal es \( n \). El \textbf{término principal} es el término con el exponente más alto.
+
+Para el Algoritmo A, el término principal tiene un coeficiente grande, 100, por lo que B funciona mejor que A para \( n \) pequeños. Pero independientemente de los coeficientes, siempre habrá algún valor de \( n \) donde \( an^2 > bn \), para cualquier valor de \( a \) y \( b \).
+
+El mismo argumento se aplica a los términos no principales. Incluso si el tiempo de ejecución del Algoritmo A fuera \( n + 1,000,000 \), seguiría siendo mejor que el Algoritmo B para \( n \) suficientemente grande.
+
+En general, esperamos que un algoritmo con un término principal más pequeño sea un mejor algoritmo para problemas grandes, pero para problemas pequeños, puede haber un \textbf{punto de cruce} donde otro algoritmo es mejor. La ubicación del punto de cruce depende de los detalles de los algoritmos, las entradas y el hardware, por lo que generalmente se ignora para fines de análisis algorítmico. Pero eso no significa que puedas olvidarte de él.
+
+\section{Orden de crecimiento}
+
+Si dos algoritmos tienen el mismo término principal, es difícil decir cuál es mejor; nuevamente, la respuesta depende de los detalles. Por lo tanto, para el análisis algorítmico, las funciones con el mismo término principal se consideran equivalentes, incluso si tienen coeficientes diferentes.
+
+Un \textbf{orden de crecimiento} es un conjunto de funciones cuyo comportamiento de crecimiento se considera equivalente. Por ejemplo, \( 2n \), \( 100n \) y \( n + 1 \) pertenecen al mismo orden de crecimiento, que se escribe \( O(n) \) en \textbf{notación Big-Oh} y a menudo se llama \textbf{lineal} porque cada función en el conjunto crece linealmente con \( n \).
+
+Todas las funciones con el término principal \( n^2 \) pertenecen a \( O(n^2) \); se llaman \textbf{cuadráticas}.
+
+La siguiente tabla muestra algunos de los órdenes de crecimiento que aparecen más comúnmente en el análisis algorítmico, en orden creciente de complejidad.
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Orden de crecimiento & Nombre \\
+\hline
+\( O(1) \) & constante \\
+\( O(\log_b n) \) & logarítmico (para cualquier \( b \)) \\
+\( O(n) \) & lineal \\
+\( O(n \log_b n) \) & linearithmico \\
+\( O(n^2) \) & cuadrático \\
+\( O(n^3) \) & cúbico \\
+\( O(c^n) \) & exponencial (para cualquier \( c \)) \\
+\hline
+\end{tabular}
+\end{center}
+
+Para los términos logarítmicos, la base del logaritmo no importa; cambiar de base es equivalente a multiplicar por una constante, lo que no cambia el orden de crecimiento. De manera similar, todas las funciones exponenciales pertenecen al mismo orden de crecimiento independientemente de la base del exponente. Las funciones exponenciales crecen muy rápidamente, por lo que los algoritmos exponenciales solo son útiles para problemas pequeños.
+
+\begin{exercise}
+Lee la página de Wikipedia sobre la notación Big-Oh en \url{http://en.wikipedia.org/wiki/Big_O_notation} y responde las siguientes preguntas:
+
+\begin{enumerate}
+    \item ¿Cuál es el orden de crecimiento de \( n^3 + n^2 \)? ¿Y de \( 1,000,000n^3 + n^2 \)? ¿Y de \( n^3 + 1,000,000n^2 \)?
+    \item ¿Cuál es el orden de crecimiento de \( (n^2 + n) \cdot (n + 1) \)? Antes de empezar a multiplicar, recuerda que solo necesitas el término principal.
+    \item Si \( f \) está en \( O(g) \), para alguna función no especificada \( g \), ¿qué podemos decir sobre \( af + b \), donde \( a \) y \( b \) son constantes?
+    \item Si \( f_1 \) y \( f_2 \) están en \( O(g) \), ¿qué podemos decir sobre \( f_1 + f_2 \)?
+    \item Si \( f_1 \) está en \( O(g) \) y \( f_2 \) está en \( O(h) \), ¿qué podemos decir sobre \( f_1 + f_2 \)?
+    \item Si \( f_1 \) está en \( O(g) \) y \( f_2 \) está en \( O(h) \), ¿qué podemos decir sobre \( f_1 \cdot f_2 \)?
+\end{enumerate}
+\end{exercise}
+
+Los programadores que se preocupan por el rendimiento a menudo encuentran este tipo de análisis difícil de digerir. Tienen un punto: a veces los coeficientes y los términos no principales marcan una diferencia real. A veces los detalles del hardware, el lenguaje de programación y las características de la entrada marcan una gran diferencia. Y para problemas pequeños, el orden de crecimiento es irrelevante.
+
+Pero si tienes en cuenta estas advertencias, el análisis algorítmico es una herramienta útil. Al menos para problemas grandes, el algoritmo "mejor" suele ser mejor, y a veces es \textit{mucho} mejor. La diferencia entre dos algoritmos con el mismo orden de crecimiento suele ser un factor constante, pero la diferencia entre un buen algoritmo y un mal algoritmo no tiene límite.
+
+\section{Análisis de operaciones básicas en Python}
+
+En Python, la mayoría de las operaciones aritméticas son de tiempo constante; la multiplicación suele tardar más que la suma y la resta, y la división tarda aún más, pero estos tiempos de ejecución no dependen de la magnitud de los operandos. Los enteros muy grandes son una excepción; en ese caso, el tiempo de ejecución aumenta con el número de dígitos.
+
+Las operaciones de indexación (leer o escribir elementos en una secuencia o diccionario) también son de tiempo constante, independientemente del tamaño de la estructura de datos.
+
+Un bucle \texttt{for} que recorre una secuencia o diccionario suele ser lineal, siempre que todas las operaciones en el cuerpo del bucle sean de tiempo constante. Por ejemplo, sumar los elementos de una lista es lineal:
+
+\begin{lstlisting}[language=Python]
+total = 0
+for x in t:
+    total += x
+\end{lstlisting}
+
+La función incorporada \texttt{sum} también es lineal porque hace lo mismo, pero tiende a ser más rápida porque es una implementación más eficiente; en el lenguaje del análisis algorítmico, tiene un coeficiente principal más pequeño.
+
+Como regla general, si el cuerpo de un bucle está en \( O(n^a) \), entonces todo el bucle está en \( O(n^{a+1}) \). La excepción es si puedes demostrar que el bucle termina después de un número constante de iteraciones. Si un bucle se ejecuta \( k \) veces independientemente de \( n \), entonces el bucle está en \( O(n^a) \), incluso para \( k \) grande.
+
+Multiplicar por \( k \) no cambia el orden de crecimiento, pero tampoco dividir. Por lo tanto, si el cuerpo de un bucle está en \( O(n^a) \) y se ejecuta \( n/k \) veces, el bucle está en \( O(n^{a+1}) \), incluso para \( k \) grande.
+
+La mayoría de las operaciones con cadenas y tuplas son lineales, excepto la indexación y \texttt{len}, que son de tiempo constante. Las funciones incorporadas \texttt{min} y \texttt{max} son lineales. El tiempo de ejecución de una operación de segmento es proporcional a la longitud de la salida, pero independiente del tamaño de la entrada.
+
+La concatenación de cadenas es lineal; el tiempo de ejecución depende de la suma de las longitudes de los operandos.
+
+Todos los métodos de cadenas son lineales, pero si las longitudes de las cadenas están limitadas por una constante (por ejemplo, operaciones en caracteres individuales), se consideran de tiempo constante. El método de cadena \texttt{join} es lineal; el tiempo de ejecución depende de la longitud total de las cadenas.
+
+La mayoría de los métodos de listas son lineales, pero hay algunas excepciones:
+
+\begin{itemize}
+    \item Agregar un elemento al final de una lista es de tiempo constante en promedio; cuando se queda sin espacio, ocasionalmente se copia a una ubicación más grande, pero el tiempo total para \( n \) operaciones es \( O(n) \), por lo que el tiempo promedio para cada operación es \( O(1) \).
+    \item Eliminar un elemento del final de una lista es de tiempo constante.
+    \item Ordenar es \( O(n \log n) \).
+\end{itemize}
+
+La mayoría de las operaciones y métodos de diccionarios son de tiempo constante, pero hay algunas excepciones:
+
+\begin{itemize}
+    \item El tiempo de ejecución de \texttt{update} es proporcional al tamaño del diccionario pasado como parámetro, no al diccionario que se está actualizando.
+    \item \texttt{keys}, \texttt{values} e \texttt{items} son de tiempo constante porque devuelven iteradores. Pero si iteras a través de los iteradores, el bucle será lineal.
+\end{itemize}
+
+\section{Análisis de algoritmos de búsqueda}
+
+El rendimiento de los diccionarios es uno de los pequeños milagros de la informática. Veremos cómo funcionan en la Sección B.4.
+
+\begin{exercise}
+Lee la página de Wikipedia sobre algoritmos de ordenamiento en \url{http://en.wikipedia.org/wiki/Sorting_algorithm} y responde las siguientes preguntas:
+
+\begin{enumerate}
+    \item ¿Qué es un "ordenamiento por comparación"? ¿Cuál es el mejor orden de crecimiento en el peor caso para un ordenamiento por comparación? ¿Cuál es el mejor orden de crecimiento en el peor caso para cualquier algoritmo de ordenamiento?
+    \item ¿Cuál es el orden de crecimiento del ordenamiento de burbuja y por qué Barack Obama cree que es "la forma incorrecta de hacerlo"?
+    \item ¿Cuál es el orden de crecimiento del ordenamiento por radix? ¿Qué precondiciones necesitamos para usarlo?
+    \item ¿Qué es un ordenamiento estable y por qué podría importar en la práctica?
+    \item ¿Cuál es el peor algoritmo de ordenamiento (que tenga un nombre)?
+    \item ¿Qué algoritmo de ordenamiento usa la biblioteca de C? ¿Qué algoritmo de ordenamiento usa Python? ¿Son estos algoritmos estables? Quizás tengas que buscar en Google para encontrar estas respuestas.
+    \item Muchos de los ordenamientos que no son por comparación son lineales, entonces ¿por qué Python usa un ordenamiento por comparación \( O(n \log n) \)?
+\end{enumerate}
+\end{exercise}
+
+\section{Algoritmos de búsqueda}
+
+Una \textbf{búsqueda} es un algoritmo que toma una colección y un elemento objetivo y determina si el objetivo está en la colección, a menudo devolviendo el índice del objetivo.
+
+El algoritmo de búsqueda más simple es una "búsqueda lineal", que recorre los elementos de la colección en orden, deteniéndose si encuentra el objetivo. En el peor caso, tiene que recorrer toda la colección, por lo que el tiempo de ejecución es lineal.
+
+El operador \texttt{in} para secuencias usa una búsqueda lineal; lo mismo hacen los métodos de cadenas como \texttt{find} y \texttt{count}.
+
+Si los elementos de la secuencia están ordenados, puedes usar una \textbf{búsqueda por bisección}, que es \( O(\log n) \). La búsqueda por bisección es similar al algoritmo que podrías usar para buscar una palabra en un diccionario (un diccionario de papel, no la estructura de datos). En lugar de comenzar al principio y revisar cada elemento en orden, comienzas con el elemento en el medio y verificas si la palabra que buscas viene antes o después. Si viene antes, buscas en la primera mitad de la secuencia. De lo contrario, buscas en la segunda mitad. De cualquier manera, reduces el número de elementos restantes a la mitad.
+
+Si la secuencia tiene 1,000,000 de elementos, tomará unos 20 pasos encontrar la palabra o concluir que no está allí. Así que es unas 50,000 veces más rápido que una búsqueda lineal.
+
+La búsqueda por bisección puede ser mucho más rápida que la búsqueda lineal, pero requiere que la secuencia esté ordenada, lo que podría requerir trabajo adicional.
+
+Hay otra estructura de datos, llamada \textbf{tabla hash}, que es aún más rápida: puede hacer una búsqueda en tiempo constante, y no requiere que los elementos estén ordenados. Los diccionarios de Python se implementan usando tablas hash, por lo que la mayoría de las operaciones de diccionario, incluido el operador \texttt{in}, son de tiempo constante.
+
+\section{Tablas hash}
+
+Para explicar cómo funcionan las tablas hash y por qué su rendimiento es tan bueno, comenzaré con una implementación simple de un mapa y la mejoraré gradualmente hasta que sea una tabla hash.
+
+Uso Python para demostrar estas implementaciones, pero en la vida real no escribirías código como este en Python; ¡simplemente usarías un diccionario! Así que por el resto de este capítulo, tienes que imaginar que los diccionarios no existen y que quieres implementar una estructura de datos que mapee claves a valores. Las operaciones que tienes que implementar son:
+
+\begin{itemize}
+    \item \texttt{add(k, v)}: Agrega un nuevo elemento que mapea la clave \( k \) al valor \( v \). Con un diccionario de Python, \( d \), esta operación se escribe \( d[k] = v \).
+    \item \texttt{get(k)}: Busca y devuelve el valor que corresponde a la clave \( k \). Con un diccionario de Python, \( d \), esta operación se escribe \( d[k] \) o \( d.get(k) \).
+\end{itemize}
+
+Por ahora, asumiré que cada clave aparece solo una vez. La implementación más simple de esta interfaz utiliza una lista de tuplas, donde cada tupla es un par clave-valor.
+
+\begin{lstlisting}[language=Python]
+class LinearMap:
+    def __init__(self):
+        self.items = []
+    
+    def add(self, k, v):
+        self.items.append((k, v))
+    
+    def get(self, k):
+        for key, val in self.items:
+            if key == k:
+                return val
+        raise KeyError
+\end{lstlisting}
+
+\texttt{add} agrega una tupla clave-valor a la lista de elementos, lo que toma tiempo constante.
+
+\texttt{get} usa un bucle \texttt{for} para buscar en la lista: si encuentra la clave objetivo, devuelve el valor correspondiente; de lo contrario, genera un \texttt{KeyError}. Así que \texttt{get} es lineal.
+
+Una alternativa es mantener la lista ordenada por clave. Entonces \texttt{get} podría usar una búsqueda por bisección, que es \( O(\log n) \). Pero insertar un nuevo elemento en medio de una lista es lineal, por lo que esta podría no ser la mejor opción. Hay otras estructuras de datos que pueden implementar \texttt{add} y \texttt{get} en tiempo logarítmico, pero eso sigue sin ser tan bueno como el tiempo constante, así que sigamos adelante.
+
+Una forma de mejorar \texttt{LinearMap} es dividir la lista de pares clave-valor en listas más pequeñas. Aquí hay una implementación llamada \texttt{BetterMap}, que es una lista de 100 \texttt{LinearMaps}. Como veremos en un momento, el orden de crecimiento para \texttt{get} sigue siendo lineal, pero \texttt{BetterMap} es un paso hacia las tablas hash:
+
+\begin{lstlisting}[language=Python]
+class BetterMap:
+    def __init__(self, n=100):
+        self.maps = []
+        for i in range(n):
+            self.maps.append(LinearMap())
+    
+    def find_map(self, k):
+        index = hash(k) % len(self.maps)
+        return self.maps[index]
+    
+    def add(self, k, v):
+        m = self.find_map(k)
+        m.add(k, v)
+    
+    def get(self, k):
+        m = self.find_map(k)
+        return m.get(k)
+\end{lstlisting}
+
+\texttt{\_\_init\_\_} crea una lista de \( n \) \texttt{LinearMaps}.
+
+\texttt{find\_map} es utilizado por \texttt{add} y \texttt{get} para determinar en qué mapa colocar el nuevo elemento o en qué mapa buscar.
+
+\texttt{find\_map} usa la función incorporada \texttt{hash}, que toma casi cualquier objeto de Python y devuelve un entero. Una limitación de esta implementación es que solo funciona con claves hashables. Los tipos mutables como listas y diccionarios no son hashables.
+
+Los objetos hashables que se consideran equivalentes devuelven el mismo valor hash, pero lo contrario no es necesariamente cierto: dos objetos con diferentes valores pueden devolver el mismo valor hash.
+
+\texttt{find\_map} usa el operador módulo para ajustar los valores hash en el rango de 0 a \texttt{len(self.maps)}, por lo que el resultado es un índice válido en la lista. Por supuesto, esto significa que muchos valores hash diferentes se ajustarán al mismo índice. Pero si la función hash distribuye las cosas de manera bastante uniforme (que es lo que están diseñadas para hacer), esperamos \( n/100 \) elementos por \texttt{LinearMap}.
+
+Dado que el tiempo de ejecución de \texttt{LinearMap.get} es proporcional al número de elementos, esperamos que \texttt{BetterMap} sea aproximadamente 100 veces más rápido que \texttt{LinearMap}. El orden de crecimiento sigue siendo lineal, pero el coeficiente principal es más pequeño. Eso es bueno, pero todavía no es tan bueno como una tabla hash.
+
+Aquí está la idea crucial que hace que las tablas hash sean rápidas: si puedes mantener la longitud máxima de los \texttt{LinearMaps} acotada, \texttt{LinearMap.get} es de tiempo constante. Solo tienes que llevar un registro del número de elementos y, cuando el número de elementos por \texttt{LinearMap} supere un umbral, redimensionar la tabla hash agregando más \texttt{LinearMaps}.
+
+Aquí hay una implementación de una tabla hash:
+
+\begin{lstlisting}[language=Python]
+class HashMap:
+    def __init__(self):
+        self.maps = BetterMap(2)
+        self.num = 0
+    
+    def get(self, k):
+        return self.maps.get(k)
+    
+    def add(self, k, v):
+        if self.num == len(self.maps.maps):
+            self.resize()
+        
+        self.maps.add(k, v)
+        self.num += 1
+    
+    def resize(self):
+        new_maps = BetterMap(self.num * 2)
+        
+        for m in self.maps.maps:
+            for k, v in m.items:
+                new_maps.add(k, v)
+        
+        self.maps = new_maps
+\end{lstlisting}
+
+\texttt{\_\_init\_\_} crea un \texttt{BetterMap} e inicializa \texttt{num}, que lleva un registro del número de elementos.
+
+\texttt{get} simplemente delega a \texttt{BetterMap}. El trabajo real ocurre en \texttt{add}, que verifica el número de elementos y el tamaño del \texttt{BetterMap}: si son iguales, el número promedio de elementos por \texttt{LinearMap} es 1, por lo que llama a \texttt{resize}.
+
+\texttt{resize} crea un nuevo \texttt{BetterMap}, el doble de grande que el anterior, y luego "rehashea" los elementos del mapa antiguo al nuevo.
+
+El rehashing es necesario porque cambiar el número de \texttt{LinearMaps} cambia el denominador del operador módulo en \texttt{find\_map}. Eso significa que algunos objetos que solían hashear en el mismo \texttt{LinearMap} se dividirán (que es lo que queríamos, ¿verdad?).
+
+El rehashing es lineal, por lo que \texttt{resize} es lineal, lo que podría parecer malo, ya que prometí que \texttt{add} sería de tiempo constante. Pero recuerda que no tenemos que redimensionar cada vez, por lo que \texttt{add} suele ser de tiempo constante y solo ocasionalmente lineal. La cantidad total de trabajo para ejecutar \texttt{add} \( n \) veces es proporcional a \( n \), por lo que el tiempo promedio de cada \texttt{add} es de tiempo constante.
+
+Para ver cómo funciona esto, piensa en comenzar con un \texttt{HashTable} vacío y agregar una secuencia de elementos. Comenzamos con 2 \texttt{LinearMaps}, por lo que los primeros 2 \texttt{add} son rápidos (no se requiere redimensionamiento). Digamos que toman una unidad de trabajo cada uno. El siguiente \texttt{add} requiere un redimensionamiento, por lo que tenemos que rehashear los primeros dos elementos (digamos que son 2 unidades más de trabajo) y luego agregar el tercer elemento (una unidad más). Agregar el siguiente elemento cuesta 1 unidad, por lo que el total hasta ahora es de 6 unidades de trabajo para 4 elementos.
+
+El siguiente \texttt{add} cuesta 5 unidades, pero los siguientes tres solo cuestan 1 unidad cada uno, por lo que el total es de 14 unidades para los primeros 8 \texttt{add}.
+
+El siguiente \texttt{add} cuesta 9 unidades, pero luego podemos agregar 7 más antes del siguiente redimensionamiento, por lo que el total es de 30 unidades para los primeros 16 \texttt{add}.
+
+Después de 32 \texttt{add}, el costo total es de 62 unidades, y espero que empieces a ver un patrón. Después de \( n \) \texttt{add}, donde \( n \) es una potencia de dos, el costo total es \( 2n - 2 \) unidades, por lo que el trabajo promedio por \texttt{add} es un poco menos de 2 unidades. Cuando \( n \) es una potencia de dos, ese es el mejor caso; para otros valores de \( n \), el trabajo promedio es un poco mayor, pero eso no es importante. Lo importante es que es \( O(1) \).
+
+La Figura B.1 muestra cómo funciona esto gráficamente. Cada bloque representa una unidad de trabajo. Las columnas muestran el trabajo total para cada \texttt{add} en orden de izquierda a derecha: los primeros dos \texttt{add} cuestan 1 unidad cada uno, el tercero cuesta 3 unidades, etc.
+
+El trabajo adicional de rehashing aparece como una secuencia de torres cada vez más altas con un espacio creciente entre ellas. Si derribas las torres, distribuyendo el costo del redimensionamiento sobre todos los \texttt{add}, puedes ver gráficamente que el costo total después de \( n \) \texttt{add} es \( 2n - 2 \).
+
+Una característica importante de este algoritmo es que cuando redimensionamos el \texttt{HashTable}, crece geométricamente; es decir, multiplicamos el tamaño por una constante. Si aumentas el tamaño aritméticamente (agregando un número fijo cada vez), el tiempo promedio por \texttt{add} es lineal.
+
+Puedes descargar mi implementación de \texttt{HashMap} desde \url{https://thinkpython.com/code/Map.py}, pero recuerda que no hay razón para usarla; si quieres un mapa, simplemente usa un diccionario de Python.
+
+\section{Glosario}
+
+\begin{description}
+    \item[análisis de algoritmos:] Una forma de comparar algoritmos en términos de su tiempo de ejecución y/o requisitos de espacio.
+    \item[modelo de máquina:] Una representación simplificada de una computadora utilizada para describir algoritmos.
+    \item[peor caso:] La entrada que hace que un algoritmo dado se ejecute más lento (o requiera más espacio).
+    \item[término principal:] En un polinomio, el término con el exponente más alto.
+    \item[punto de cruce:] El tamaño del problema donde dos algoritmos requieren el mismo tiempo de ejecución o espacio.
+    \item[orden de crecimiento:] Un conjunto de funciones que crecen de una manera considerada equivalente para fines de análisis de algoritmos. Por ejemplo, todas las funciones que crecen linealmente pertenecen al mismo orden de crecimiento.
+    \item[notación Big-Oh:] Notación para representar un orden de crecimiento; por ejemplo, \( O(n) \) representa el conjunto de funciones que crecen linealmente.
+    \item[lineal:] Un algoritmo cuyo tiempo de ejecución es proporcional al tamaño del problema, al menos para tamaños de problema grandes.
+    \item[cuadrático:] Un algoritmo cuyo tiempo de ejecución es proporcional a \( n^2 \), donde \( n \) es una medida del tamaño del problema.
+    \item[búsqueda:] El problema de localizar un elemento de una colección (como una lista o diccionario) o determinar que no está presente.
+    \item[tabla hash:] Una estructura de datos que representa una colección de pares clave-valor y realiza búsquedas en tiempo constante.
+\end{description}

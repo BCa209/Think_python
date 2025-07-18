@@ -1,0 +1,322 @@
+\chapter{Las bondades del lenguaje}
+
+Uno de mis objetivos para este libro ha sido enseñarte la menor cantidad de Python posible. Cuando existían dos maneras de hacer algo, elegí una y evité mencionar la otra. O, a veces, coloqué la segunda opción en un ejercicio.
+
+Ahora quiero retomar algunas de las características interesantes que dejamos de lado. Python ofrece varias funciones que no son realmente necesarias —puedes escribir buen código sin ellas—, pero con ellas a veces puedes escribir código más conciso, legible o eficiente... y en ocasiones, todo a la vez.
+
+\section{Expresiones condicionales}
+
+Vimos sentencias condicionales en la Sección 5.4. Las sentencias condicionales suelen usarse para elegir uno de dos valores; por ejemplo:
+
+\begin{lstlisting}[language=Python]
+if x > 0:
+    y = math.log(x)
+else:
+    y = float('nan')
+\end{lstlisting}
+
+Esta sentencia verifica si \(x\) es positivo. Si lo es, se calcula \texttt{math.log}. En caso contrario, \texttt{math.log} generaría un \texttt{ValueError}. Para evitar que el programa se detenga, generamos un "NaN", que es un valor especial de punto flotante que representa "No es un número".
+
+Podemos escribir esta sentencia de manera más concisa usando una \textbf{expresión condicional}:
+
+\begin{lstlisting}[language=Python]
+y = math.log(x) if x > 0 else float('nan')
+\end{lstlisting}
+
+Esta línea se puede leer casi como en inglés: "y obtiene log(x) si x es mayor que 0; en caso contrario obtiene NaN".
+
+A veces, las funciones recursivas pueden reescribirse utilizando expresiones condicionales. Por ejemplo, aquí hay una versión recursiva de factorial:
+
+\begin{lstlisting}[language=Python]
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * factorial(n-1)
+\end{lstlisting}
+
+Podemos reescribirla así:
+
+\begin{lstlisting}[language=Python]
+def factorial(n):
+    return 1 if n == 0 else n * factorial(n-1)
+\end{lstlisting}
+
+Otro uso de las expresiones condicionales es manejar argumentos opcionales. Por ejemplo, este es el método \texttt{init} de \texttt{GoodKangaroo} (ver Ejercicio 17.2):
+
+\begin{lstlisting}[language=Python]
+def __init__(self, name, contents=None):
+    self.name = name
+    if contents == None:
+        contents = []
+    self.pouch_contents = contents
+\end{lstlisting}
+
+Podemos reescribirlo así:
+
+\begin{lstlisting}[language=Python]
+def __init__(self, name, contents=None):
+    self.name = name
+    self.pouch_contents = [] if contents == None else contents
+\end{lstlisting}
+
+En general, puedes reemplazar una sentencia condicional con una expresión condicional si ambas ramas contienen expresiones simples que se asignan o se retornan a la misma variable.
+
+\section{Comprensiones de listas}
+
+En la Sección 10.7 vimos los patrones \texttt{map} y \texttt{filter}. Por ejemplo, esta función toma una lista de cadenas, aplica el método \texttt{capitalize} a cada elemento y retorna una nueva lista:
+
+\begin{lstlisting}[language=Python]
+def capitalize_all(t):
+    res = []
+    for s in t:
+        res.append(s.capitalize())
+    return res
+\end{lstlisting}
+
+Podemos escribir esto de forma más concisa usando una comprensión de lista:
+
+\begin{lstlisting}[language=Python]
+def capitalize_all(t):
+    return [s.capitalize() for s in t]
+\end{lstlisting}
+
+Los corchetes indican que estamos construyendo una nueva lista. La expresión dentro de los corchetes especifica los elementos, y la cláusula \texttt{for} indica sobre qué secuencia iteramos.
+
+Las comprensiones de listas también se pueden usar para filtrar. Por ejemplo, esta función selecciona solo los elementos de \texttt{t} que están en mayúscula y devuelve una nueva lista:
+
+\begin{lstlisting}[language=Python]
+def only_upper(t):
+    res = []
+    for s in t:
+        if s.isupper():
+            res.append(s)
+    return res
+\end{lstlisting}
+
+\section{Expresiones generadoras}
+
+Podemos reescribirla usando una comprensión de lista:
+
+\begin{lstlisting}[language=Python]
+def only_upper(t):
+    return [s for s in t if s.isupper()]
+\end{lstlisting}
+
+Las comprensiones de listas son concisas y fáciles de leer, al menos para expresiones simples. Y suelen ser más rápidas que los bucles \texttt{for} equivalentes, a veces mucho más.
+
+Las \textbf{expresiones generadoras} son similares, pero usan paréntesis en lugar de corchetes:
+
+\begin{lstlisting}[language=Python]
+>>> g = (x**2 for x in range(5))
+>>> g
+<generator object <genexpr> at 0x7f4c45a786c0>
+\end{lstlisting}
+
+El resultado es un objeto generador que sabe cómo iterar por una secuencia de valores. Pero, a diferencia de las comprensiones de lista, no calcula todos los valores de una vez; espera a que se le pidan. La función \texttt{next} obtiene el siguiente valor del generador:
+
+\begin{lstlisting}[language=Python]
+>>> next(g)
+0
+>>> next(g)
+1
+\end{lstlisting}
+
+Cuando se alcanza el final de la secuencia, \texttt{next} lanza una excepción \texttt{StopIteration}. También puedes usar un bucle \texttt{for}:
+
+\begin{lstlisting}[language=Python]
+>>> for val in g:
+...     print(val)
+4
+9
+16
+\end{lstlisting}
+
+Las expresiones generadoras suelen usarse con funciones como \texttt{sum}, \texttt{max} y \texttt{min}:
+
+\begin{lstlisting}[language=Python]
+>>> sum(x**2 for x in range(5))
+30
+\end{lstlisting}
+
+\section{\texttt{any} y \texttt{all}}
+
+Python provee la función incorporada \texttt{any}, que toma una secuencia de valores booleanos y devuelve \texttt{True} si alguno es verdadero. Funciona con listas:
+
+\begin{lstlisting}[language=Python]
+>>> any([False, False, True])
+True
+\end{lstlisting}
+
+Pero frecuentemente se usa con expresiones generadoras:
+
+\begin{lstlisting}[language=Python]
+>>> any(letter == 't' for letter in 'monty')
+True
+\end{lstlisting}
+
+Podríamos usar \texttt{any} para reescribir algunas funciones de búsqueda de la Sección 9.3. Por ejemplo, podríamos escribir \texttt{avoids} así:
+
+\begin{lstlisting}[language=Python]
+def avoids(word, forbidden):
+    return not any(letter in forbidden for letter in word)
+\end{lstlisting}
+
+Python también ofrece la función \texttt{all}, que retorna \texttt{True} si todos los elementos de la secuencia son verdaderos.
+
+\section{Conjuntos (\texttt{sets})}
+
+En la Sección 13.6 usamos diccionarios para encontrar palabras que aparecen en un documento pero no en una lista de palabras. La función escrita tomaba \texttt{d1} con palabras del documento como claves, y \texttt{d2} con la lista de palabras. Retornaba un diccionario con las claves de \texttt{d1} que no estaban en \texttt{d2}.
+
+\begin{lstlisting}[language=Python]
+def subtract(d1, d2):
+    res = dict()
+    for key in d1:
+        if key not in d2:
+            res[key] = None
+    return res
+\end{lstlisting}
+
+Python ofrece otro tipo incorporado llamado \texttt{set}, que se comporta como una colección de claves sin valores. Podemos reescribir \texttt{subtract} así:
+
+\begin{lstlisting}[language=Python]
+def subtract(d1, d2):
+    return set(d1) - set(d2)
+\end{lstlisting}
+
+Algunos ejercicios del libro pueden resolverse de forma más concisa y eficiente usando conjuntos. Por ejemplo, esta solución a \texttt{has\_duplicates} (Ejercicio 10.7) usando diccionarios:
+
+\begin{lstlisting}[language=Python]
+def has_duplicates(t):
+    d = {}
+    for x in t:
+        if x in d:
+            return True
+        d[x] = True
+    return False
+\end{lstlisting}
+
+Se puede reescribir con conjuntos así:
+
+\begin{lstlisting}[language=Python]
+def has_duplicates(t):
+    return len(set(t)) < len(t)
+\end{lstlisting}
+
+También podemos usar conjuntos en ejercicios del Capítulo 9. Por ejemplo, una versión de \texttt{uses\_only} con bucles:
+
+\begin{lstlisting}[language=Python]
+def uses_only(word, available):
+    for letter in word:
+        if letter not in available:
+            return False
+    return True
+\end{lstlisting}
+
+Reescrita con conjuntos:
+
+\begin{lstlisting}[language=Python]
+def uses_only(word, available):
+    return set(word) <= set(available)
+\end{lstlisting}
+
+\section{\texttt{Counter}}
+
+Un \texttt{Counter} es como un conjunto, pero si un elemento aparece más de una vez, lleva la cuenta de cuántas veces aparece. Se encuentra en el módulo estándar \texttt{collections}, así que se debe importar:
+
+\begin{lstlisting}[language=Python]
+>>> from collections import Counter
+>>> count = Counter('parrot')
+>>> count
+Counter({'r': 2, 't': 1, 'o': 1, 'p': 1, 'a': 1})
+\end{lstlisting}
+
+Podemos usar \texttt{Counter} para reescribir \texttt{is\_anagram} del Ejercicio 10.6:
+
+\begin{lstlisting}[language=Python]
+def is_anagram(word1, word2):
+    return Counter(word1) == Counter(word2)
+\end{lstlisting}
+
+\section{\texttt{defaultdict}}
+
+El módulo \texttt{collections} también provee \texttt{defaultdict}, que es como un diccionario, pero si accedes a una clave inexistente, puede generar un nuevo valor automáticamente.
+
+\begin{lstlisting}[language=Python]
+>>> from collections import defaultdict
+>>> d = defaultdict(list)
+>>> t = d['new key']
+>>> t
+[]
+\end{lstlisting}
+
+Esto permite evitar la creación de listas innecesarias y simplificar el código, como en este ejemplo:
+
+\begin{lstlisting}[language=Python]
+def all_anagrams(filename):
+    d = defaultdict(list)
+    for line in open(filename):
+        word = line.strip().lower()
+        t = signature(word)
+        d[t].append(word)
+    return d
+\end{lstlisting}
+
+\section{Tuplas con nombre}
+
+Muchos objetos simples son básicamente colecciones de valores relacionados. Python ofrece una forma más concisa de representarlos:
+
+\begin{lstlisting}[language=Python]
+from collections import namedtuple
+Point = namedtuple('Point', ['x', 'y'])
+\end{lstlisting}
+
+Para crear un objeto \texttt{Point}, se usa la clase como función:
+
+\begin{lstlisting}[language=Python]
+>>> p = Point(1, 2)
+>>> p
+Point(x=1, y=2)
+\end{lstlisting}
+
+\section{Recolección de argumentos nombrados}
+
+En la Sección 12.4 vimos cómo definir una función que recolecta sus argumentos en una tupla:
+
+\begin{lstlisting}[language=Python]
+def printall(*args):
+    print(args)
+\end{lstlisting}
+
+Para recolectar argumentos nombrados, puedes usar el operador \texttt{**}:
+
+\begin{lstlisting}[language=Python]
+def printall(*args, **kwargs):
+    print(args, kwargs)
+\end{lstlisting}
+
+\section{Ejercicios}
+
+\subsection*{Ejercicio 19.1}
+
+La siguiente es una función que calcula el coeficiente binomial de manera recursiva.
+
+\begin{lstlisting}[language=Python]
+def binomial_coeff(n, k):
+    """Calcula el coeficiente binomial "n sobre k".
+
+    n: número de ensayos
+    k: número de éxitos
+
+    retorna: int
+    """
+    if k == 0:
+        return 1
+    if n == 0:
+        return 0
+
+    res = binomial_coeff(n-1, k) + binomial_coeff(n-1, k-1)
+    return res
+\end{lstlisting}
+
+Reescribe el cuerpo de la función usando expresiones condicionales anidadas.

@@ -1,0 +1,259 @@
+\chapter{Caso de estudio: juegos de palabras}
+
+Este capítulo presenta el segundo caso de estudio, que implica resolver acertijos de palabras buscando palabras que tengan ciertas propiedades. Por ejemplo, encontraremos los palíndromos más largos en inglés y buscaremos palabras cuyas letras aparezcan en orden alfabético. Además, presentaré otro plan de desarrollo de programas: reducción a un problema previamente resuelto.
+
+\section{Lectura de listas de palabras}
+
+Para los ejercicios de este capítulo necesitamos una lista de palabras en inglés. Hay muchas listas de palabras disponibles en la web, pero la más adecuada para nuestro propósito es una de las listas recopiladas y contribuidas al dominio público por Grady Ward como parte del proyecto Moby lexicon (ver \url{http://wikipedia.org/wiki/Moby_Project}). Es una lista de 113,809 palabras oficiales para crucigramas; es decir, palabras que se consideran válidas en crucigramas y otros juegos de palabras. En la colección Moby, el nombre del archivo es 113809of.fic; puedes descargar una copia, con el nombre más simple words.txt, desde \url{https://thinkpython.com/code/words.txt}.
+
+Este archivo está en texto plano, por lo que puedes abrirlo con un editor de texto, pero también puedes leerlo desde Python. La función incorporada \texttt{open} toma el nombre del archivo como parámetro y devuelve un \textbf{objeto de archivo} que puedes usar para leer el archivo.
+
+\begin{lstlisting}[language=Python]
+>>> fin = open('words.txt')
+\end{lstlisting}
+
+\texttt{fin} es un nombre común para un objeto de archivo usado para entrada. El objeto de archivo proporciona varios métodos para lectura, incluido \texttt{readline}, que lee caracteres del archivo hasta llegar a un salto de línea y devuelve el resultado como una cadena:
+
+\begin{lstlisting}[language=Python]
+>>> fin.readline()
+'aa\n'
+\end{lstlisting}
+
+La primera palabra en esta lista particular es "aa", que es un tipo de lava. La secuencia \texttt{\textbackslash n} representa el carácter de nueva línea que separa esta palabra de la siguiente.
+
+El objeto de archivo realiza un seguimiento de su posición en el archivo, por lo que si llamas a \texttt{readline} nuevamente, obtienes la siguiente palabra:
+
+\begin{lstlisting}[language=Python]
+>>> fin.readline()
+'aah\n'
+\end{lstlisting}
+
+La siguiente palabra es "aah", que es una palabra perfectamente legítima. O, si es el carácter de nueva línea lo que te molesta, podemos eliminarlo con el método de cadena \texttt{strip}:
+
+\begin{lstlisting}[language=Python]
+>>> line = fin.readline()
+>>> word = line.strip()
+>>> word
+'aahed'
+\end{lstlisting}
+
+También puedes usar un objeto de archivo como parte de un bucle \texttt{for}. Este programa lee words.txt e imprime cada palabra, una por línea:
+
+\begin{lstlisting}[language=Python]
+fin = open('words.txt')
+for line in fin:
+    word = line.strip()
+    print(word)
+\end{lstlisting}
+
+\section{Ejercicios}
+
+Hay soluciones a estos ejercicios en la siguiente sección. Debes intentar cada uno al menos una vez antes de leer las soluciones.
+
+\textbf{Ejercicio 9.1.} \textit{Escribe un programa que lea words.txt e imprima solo las palabras con más de 20 caracteres (sin contar espacios en blanco).}
+
+\textbf{Ejercicio 9.2.} 
+
+\textit{En 1939, Ernest Vincent Wright publicó una novela de 50,000 palabras titulada \textit{Gadsby}, que no contiene la letra "e". Dado que "e" es la letra más común en inglés, lograrlo no fue fácil.}
+
+\textit{De hecho, es complicado construir una frase completa sin utilizar ese símbolo tan frecuente. Al principio puede ser lento, pero con práctica y cuidado se puede lograr fluidez gradualmente.}
+
+\textit{Bueno, mejor me detengo.}
+
+\textit{Escribe una función llamada \texttt{has\_no\_e} que devuelva \texttt{True} si la palabra dada no contiene la letra "e".}
+
+\textit{Escribe un programa que lea el archivo \texttt{words.txt} e imprima solo las palabras que no contienen "e". Calcula también el porcentaje de palabras en la lista que no contienen dicha letra.}
+
+\textbf{Ejercicio 9.3.} \textit{Escribe una función llamada \texttt{avoids} que tome una palabra y una cadena de letras prohibidas, y que devuelva \texttt{True} si la palabra no usa ninguna de las letras prohibidas.}
+
+\textit{Escribe un programa que solicite al usuario ingresar una cadena de letras prohibidas y luego imprima el número de palabras que no contienen ninguna de ellas. ¿Puedes encontrar una combinación de 5 letras prohibidas que excluya la menor cantidad de palabras?}
+
+\textbf{Ejercicio 9.4.} \textit{Escribe una función llamada \texttt{uses\_only} que tome una palabra y una cadena de letras, y que devuelva \texttt{True} si la palabra contiene solo letras en la lista. ¿Puedes hacer una oración usando solo las letras acefhlo? ¿Otra que no sea "Hoe alfalfa"?}
+
+\textbf{Ejercicio 9.5.} \textit{Escribe una función llamada \texttt{uses\_all} que tome una palabra y una cadena de letras requeridas, y que devuelva \texttt{True} si la palabra usa todas las letras requeridas al menos una vez. ¿Cuántas palabras hay que usen todas las vocales aeiou? ¿Y aeiouy?}
+
+\textbf{Ejercicio 9.6.} \textit{Escribe una función llamada \texttt{is\_abecedarian} que devuelva \texttt{True} si las letras de una palabra aparecen en orden alfabético (se permiten letras dobles). ¿Cuántas palabras abecedarian hay?}
+
+\section{Búsqueda}
+
+Todos los ejercicios de la sección anterior tienen algo en común; pueden resolverse con el patrón de búsqueda que vimos en la Sección 8.6. El ejemplo más simple es:
+
+\begin{lstlisting}[language=Python]
+def has_no_e(word):
+    for letter in word:
+        if letter == 'e':
+            return False
+    return True
+\end{lstlisting}
+
+El bucle \texttt{for} recorre los caracteres en \texttt{word}. Si encontramos la letra "e", podemos devolver \texttt{False} inmediatamente; de lo contrario, tenemos que pasar a la siguiente letra. Si salimos del bucle normalmente, significa que no encontramos una "e", por lo que devolvemos \texttt{True}.
+
+Podrías escribir esta función de manera más concisa usando el operador \texttt{in}, pero comencé con esta versión porque demuestra la lógica del patrón de búsqueda.
+
+\texttt{avoids} es una versión más general de \texttt{has\_no\_e} pero tiene la misma estructura:
+
+\begin{lstlisting}[language=Python]
+def avoids(word, forbidden):
+    for letter in word:
+        if letter in forbidden:
+            return False
+    return True
+\end{lstlisting}
+
+Podemos devolver \texttt{False} tan pronto como encontremos una letra prohibida; si llegamos al final del bucle, devolvemos \texttt{True}.
+
+\texttt{uses\_only} es similar excepto que el sentido de la condición está invertido:
+
+\begin{lstlisting}[language=Python]
+def uses_only(word, available):
+    for letter in word:
+        if letter not in available:
+            return False
+    return True
+\end{lstlisting}
+
+En lugar de una lista de letras prohibidas, tenemos una lista de letras disponibles. Si encontramos una letra en \texttt{word} que no está en \texttt{available}, podemos devolver \texttt{False}.
+
+\texttt{uses\_all} es similar excepto que invertimos el rol de la palabra y la cadena de letras:
+
+\begin{lstlisting}[language=Python]
+def uses_all(word, required):
+    for letter in required:
+        if letter not in word:
+            return False
+    return True
+\end{lstlisting}
+
+En lugar de recorrer las letras en \texttt{word}, el bucle recorre las letras requeridas. Si alguna de las letras requeridas no aparece en la palabra, podemos devolver \texttt{False}.
+
+Si realmente estuvieras pensando como un informático, habrías reconocido que \texttt{uses\_all} era una instancia de un problema previamente resuelto, y habrías escrito:
+
+\begin{lstlisting}[language=Python]
+def uses_all(word, required):
+    return uses_only(required, word)
+\end{lstlisting}
+
+Este es un ejemplo de un plan de desarrollo de programas llamado reducción a un problema previamente resuelto, lo que significa que reconoces el problema en el que estás trabajando como una instancia de un problema resuelto y aplicas una solución existente.
+
+\section{Bucles con índices}
+
+Escribí las funciones en la sección anterior con bucles \texttt{for} porque solo necesitaba los caracteres en las cadenas; no tenía que hacer nada con los índices.
+
+Para \texttt{is\_abecedarian} tenemos que comparar letras adyacentes, lo cual es un poco complicado con un bucle \texttt{for}:
+
+\begin{lstlisting}[language=Python]
+def is_abecedarian(word):
+    previous = word[0]
+    for c in word:
+        if c < previous:
+            return False
+        previous = c
+    return True
+\end{lstlisting}
+
+Una alternativa es usar recursión:
+
+\begin{lstlisting}[language=Python]
+def is_abecedarian(word):
+    if len(word) <= 1:
+        return True
+    if word[0] > word[1]:
+        return False
+    return is_abecedarian(word[1:])
+\end{lstlisting}
+
+Otra opción es usar un bucle \texttt{while}:
+
+\begin{lstlisting}[language=Python]
+def is_abecedarian(word):
+    i = 0
+    while i < len(word)-1:
+        if word[i+1] < word[i]:
+            return False
+        i = i+1
+    return True
+\end{lstlisting}
+
+El bucle comienza en \texttt{i=0} y termina cuando \texttt{i=len(word)-1}. Cada vez que se ejecuta el bucle, compara el carácter \texttt{i-ésimo} (que puedes pensar como el carácter actual) con el carácter \texttt{i+1-ésimo} (que puedes pensar como el siguiente).
+
+Si el siguiente carácter es menor (alfabéticamente anterior) que el actual, entonces hemos descubierto un rompimiento en la tendencia abecedariana, y devolvemos \texttt{False}.
+
+Si llegamos al final del bucle sin encontrar fallas, entonces la palabra pasa la prueba. Para convencerte de que el bucle termina correctamente, considera un ejemplo como 'flossy'. La longitud de la palabra es 6, por lo que la última vez que se ejecuta el bucle es cuando \texttt{i} es 4, que es el índice del penúltimo carácter. En la última iteración, compara el penúltimo carácter con el último, que es lo que queremos.
+
+Aquí hay una versión de \texttt{is\_palindrome} (ver Ejercicio 6.3) que usa dos índices; uno comienza al principio y avanza; el otro comienza al final y retrocede.
+
+\begin{lstlisting}[language=Python]
+def is_palindrome(word):
+    i = 0
+    j = len(word)-1
+    while i<j:
+        if word[i] != word[j]:
+            return False
+        i = i+1
+        j = j-1
+    return True
+\end{lstlisting}
+
+O podríamos reducir a un problema previamente resuelto y escribir:
+
+\begin{lstlisting}[language=Python]
+def is_palindrome(word):
+    return is_reverse(word, word)
+\end{lstlisting}
+
+Usando \texttt{is\_reverse} de la Sección 8.11.
+
+\section{Depuración}
+
+Probar programas es difícil. Las funciones de este capítulo son relativamente fáciles de probar porque puedes verificar los resultados manualmente. Aun así, está entre difícil e imposible elegir un conjunto de palabras que prueben todos los errores posibles.
+
+Tomando \texttt{has\_no\_e} como ejemplo, hay dos casos obvios para verificar: palabras que tienen una 'e' deberían devolver \texttt{False}, y palabras que no la tienen deberían devolver \texttt{True}. No deberías tener problemas para encontrar una de cada.
+
+Dentro de cada caso, hay algunos subcasos menos obvios. Entre las palabras que tienen una "e", deberías probar palabras con una "e" al principio, al final y en algún lugar intermedio. Deberías probar palabras largas, palabras cortas y palabras muy cortas, como la cadena vacía. La cadena vacía es un ejemplo de un caso especial, que es uno de los casos no obvios donde a menudo se esconden errores.
+
+Además de los casos de prueba que generes, también puedes probar tu programa con una lista de palabras como words.txt. Al escanear la salida, podrías detectar errores, pero ten cuidado: podrías detectar un tipo de error (palabras que no deberían incluirse, pero lo están) y no otro (palabras que deberían incluirse, pero no lo están).
+
+En general, las pruebas pueden ayudarte a encontrar errores, pero no es fácil generar un buen conjunto de casos de prueba, e incluso si lo haces, no puedes estar seguro de que tu programa sea correcto. Según un legendario informático:
+
+\begin{quote}
+¡Las pruebas de programas pueden usarse para mostrar la presencia de errores, pero nunca para mostrar su ausencia!
+— Edsger W. Dijkstra
+\end{quote}
+
+\section{Glosario}
+
+\textbf{objeto de archivo:} Un valor que representa un archivo abierto.
+
+\textbf{reducción a un problema previamente resuelto:} Una forma de resolver un problema expresándolo como una instancia de un problema previamente resuelto.
+
+\textbf{caso especial:} Un caso de prueba que es atípico o no obvio (y menos probable que se maneje correctamente).
+
+\section{Ejercicios}
+
+\textbf{Ejercicio 9.7.} Esta pregunta está basada en un Puzzler que fue transmitido en el programa de radio Car Talk (\url{http://www.cartalk.com/content/puzzlers}):
+
+\textit{Dame una palabra con tres pares de letras consecutivos. Te daré un par de palabras que casi califican, pero no. Por ejemplo, la palabra committee, c-o-m-m-i-t-t-e-e. Sería genial excepto por la 'i' que se cuela allí. O Mississippi: M-i-s-s-i-s-s-i-p-p-i. Si pudieras quitar esas i's funcionaría. Pero hay una palabra que tiene tres pares consecutivos de letras y que, hasta donde sé, puede ser la única. Por supuesto, probablemente hay 500 más, pero solo puedo pensar en una. ¿Cuál es la palabra?}
+
+Escribe un programa para encontrarla. Solución: \url{https://thinkpython.com/code/cartalk1.py}.
+
+\textbf{Ejercicio 9.8.} Aquí hay otro Puzzler de Car Talk (\url{http://www.cartalk.com/content/puzzlers}):
+
+\textit{"Estaba conduciendo por la autopista el otro día y noté mi odómetro. Como la mayoría de los odómetros, muestra seis dígitos, en millas enteras solamente. Así que, si mi auto tuviera 300,000 millas, por ejemplo, vería 3-0-0-0-0-0."}
+
+\textit{"Lo que vi ese día fue muy interesante. Noté que los últimos 4 dígitos eran palíndromos; es decir, se leían igual hacia adelante que hacia atrás. Por ejemplo, 5-4-4-5 es un palíndromo, por lo que mi odómetro podría haber leído 3-1-5-4-4-5."}
+
+\textit{"Una milla después, los últimos 5 números eran palíndromos. Por ejemplo, podría haber leído 3-6-5-4-5-6. Una milla después de eso, los 4 números centrales de los 6 eran palíndromos. ¿Y están listos para esto? Una milla después, ¡los 6 eran palíndromos!"}
+
+\textit{"La pregunta es, ¿qué marcaba el odómetro cuando lo miré por primera vez?"}
+
+Escribe un programa en Python que pruebe todos los números de seis dígitos e imprima los números que satisfacen estos requisitos. Solución: \url{https://thinkpython.com/code/cartalk2.py}.
+
+\textbf{Ejercicio 9.9.} Aquí hay otro Puzzler de Car Talk que puedes resolver con una búsqueda (\url{http://www.cartalk.com/content/puzzlers}):
+
+\textit{"Recientemente visité a mi mamá y nos dimos cuenta de que los dos dígitos que conforman mi edad cuando se invierten resultan en su edad. Por ejemplo, si ella tiene 73, yo tengo 37. Nos preguntamos cuántas veces ha sucedido esto a lo largo de los años, pero nos distrajimos con otros temas y nunca llegamos a una respuesta."}
+
+\textit{"Cuando llegué a casa, descubrí que los dígitos de nuestras edades han sido reversibles seis veces hasta ahora. También descubrí que, si tenemos suerte, sucederá nuevamente en unos años, y si tenemos mucha suerte, sucederá una vez más después de eso. En otras palabras, habrá sucedido 8 veces en total. Entonces la pregunta es, ¿cuántos años tengo ahora?"}
+
+Escribe un programa en Python que busque soluciones a este Puzzler. Pista: podrías encontrar útil el método de cadena \texttt{zfill}.
+
+Solución: \url{https://thinkpython.com/code/cartalk3.py}.

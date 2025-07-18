@@ -1,0 +1,126 @@
+\chapter{Índice}
+
+Este capítulo contiene el índice completo del libro "Think Python 2", que sirve como referencia rápida para los términos y conceptos clave cubiertos en el texto.
+
+\section{Índice alfabético}
+
+\begin{description}
+\item[abecedarian] 73, 84
+\item[abs function] 52
+\item[absolute path] 139, 145
+\item[access] 90
+\item[accumulator] 100
+  \begin{itemize}
+  \item histogram 127
+  \item list 93
+  \item string 175
+  \item sum 93
+  \end{itemize}
+\item[Ackermann function] 61, 113
+\item[add method] 165
+\item[addition with carrying] 68
+\item[algorithm] 67, 69, 130, 201
+  \begin{itemize}
+  \item MD5 146
+  \item square root 69
+  \end{itemize}
+\item[aliasing] 95, 96, 100, 149, 151, 170
+  \begin{itemize}
+  \item copying to avoid 99
+  \end{itemize}
+\item[all] 186
+\item[alphabet] 37
+\item[alternative execution] 41
+\item[ambiguity] 5
+\item[anagram] 101
+\item[anagram set] 123, 145
+\item[analysis of algorithms] 201, 209
+\item[analysis of primitives] 204
+\item[and operator] 40
+\item[any] 185
+\item[append method] 92, 97, 101, 174, 175
+\item[arc function] 31
+\item[Archimedian spiral] 38
+\item[argument] 17, 19, 21, 22, 26, 97
+  \begin{itemize}
+  \item gather 118
+  \item keyword 33, 36, 191
+  \item list 97
+  \item optional 76, 79, 95, 107, 184
+  \item positional 164, 169, 190
+  \item variable-length tuple 118
+  \end{itemize}
+\item[argument scatter] 118
+\item[arithmetic operator] 3
+\item[assert statement] 159, 160
+\item[assignment] 14, 63, 89
+  \begin{itemize}
+  \item augmented 93, 100
+  \item item 74, 90, 116
+  \item tuple 116, 117, 119, 122
+  \end{itemize}
+\item[assignment statement] 9
+\item[attribute] 153, 169
+  \begin{itemize}
+  \item \_\_dict\_\_ 168
+  \item class 172, 180
+  \item initializing 168
+  \item instance 148, 153, 172, 180
+  \end{itemize}
+\item[AttributeError] 152, 197
+\item[augmented assignment] 93, 100
+\item[Austen, Jane] 127
+\item[average case] 202
+\item[average cost] 208
+\end{description}
+
+\section{Ejemplos de código}
+
+Aquí hay algunos ejemplos de código relevantes para términos del índice:
+
+\begin{lstlisting}[language=Python]
+# Ejemplo de función abs
+x = -5
+absolute_value = abs(x)
+print(absolute_value)  # Output: 5
+
+# Ejemplo de método append
+my_list = [1, 2, 3]
+my_list.append(4)
+print(my_list)  # Output: [1, 2, 3, 4]
+
+# Ejemplo de assert statement
+def calculate_average(numbers):
+    assert len(numbers) > 0, "List cannot be empty"
+    return sum(numbers) / len(numbers)
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python]
+# Ejemplo de aliasing
+a = [1, 2, 3]
+b = a       # b es un alias de a
+b[0] = 5    # Esto modifica tanto a como b
+print(a)    # Output: [5, 2, 3]
+
+# Para evitar aliasing
+a = [1, 2, 3]
+b = a.copy()  # b es una copia independiente
+b[0] = 5     # Esto solo modifica b
+print(a)     # Output: [1, 2, 3]
+\end{lstlisting}
+
+\section{Notas importantes}
+
+El índice proporciona referencias cruzadas para todos los conceptos importantes cubiertos en el libro, incluyendo:
+
+\begin{itemize}
+\item Funciones incorporadas de Python
+\item Métodos comunes
+\item Conceptos de programación
+\item Estructuras de datos
+\item Técnicas de depuración
+\item Diseño de algoritmos
+\item Programación orientada a objetos
+\end{itemize}
+
+Para cada término, el número de página indica dónde encontrar la explicación detallada en el libro. Algunos términos tienen múltiples referencias cuando el concepto se discute en diferentes contextos a lo largo del texto.

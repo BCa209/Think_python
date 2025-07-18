@@ -1,0 +1,442 @@
+\chapter{Caso de estudio: selección de estructuras de datos}
+
+En este punto has aprendido sobre las estructuras de datos principales de Python y has visto algunos algoritmos que las utilizan. Si deseas saber más sobre algoritmos, este podría ser un buen momento para leer el Capítulo B. Pero no es necesario que lo leas antes de continuar; puedes leerlo cuando te interese.
+
+Este capítulo presenta un caso de estudio con ejercicios que te permitirán pensar sobre la selección de estructuras de datos y practicar su uso.
+
+\section{Análisis de frecuencia de palabras}
+
+Como siempre, deberías intentar resolver los ejercicios antes de leer mis soluciones.
+
+\textbf{Ejercicio 13.1.} Escribe un programa que lea un archivo, divida cada línea en palabras, elimine los espacios en blanco y la puntuación de las palabras, y las convierta a minúsculas.
+
+\textit{Sugerencia: El módulo \texttt{string} proporciona una cadena llamada \texttt{whitespace}, que contiene espacios, tabulaciones, saltos de línea, etc., y \texttt{punctuation} que contiene los caracteres de puntuación. Veamos si podemos hacer que Python "jure":}
+
+\begin{lstlisting}[language=Python]
+>>> import string
+>>> string.punctuation
+'!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
+\end{lstlisting}
+
+\textit{Además, podrías considerar usar los métodos de cadena \texttt{strip}, \texttt{replace} y \texttt{translate}.}
+
+\textbf{Ejercicio 13.2.} Ve a Project Gutenberg (\url{http://gutenberg.org}) y descarga tu libro favorito que esté libre de derechos de autor, en formato de texto plano.
+
+\textit{Modifica tu programa del ejercicio anterior para leer el libro que descargaste, omitir la información del encabezado al principio del archivo y procesar el resto de las palabras como antes.}
+
+\textit{Luego, modifica el programa para contar el número total de palabras en el libro y la cantidad de veces que aparece cada palabra.}
+
+\textit{Imprime el número de palabras diferentes utilizadas en el libro. Compara libros de diferentes autores, escritos en diferentes épocas. ¿Qué autor utiliza el vocabulario más extenso?}
+
+\textbf{Ejercicio 13.3.} Modifica el programa del ejercicio anterior para imprimir las 20 palabras más frecuentes en el libro.
+
+\textbf{Ejercicio 13.4.} Modifica el programa anterior para leer una lista de palabras (ver Sección 9.1) y luego imprimir todas las palabras del libro que no estén en la lista de palabras. ¿Cuántas de ellas son errores tipográficos? ¿Cuántas son palabras comunes que deberían estar en la lista y cuántas son realmente oscuras?
+
+\section{Números aleatorios}
+
+Con las mismas entradas, la mayoría de los programas de computadora generan las mismas salidas cada vez, por lo que se dice que son \textbf{deterministas}. El determinismo suele ser algo bueno, ya que esperamos que el mismo cálculo produzca el mismo resultado. Sin embargo, para algunas aplicaciones queremos que la computadora sea impredecible. Los juegos son un ejemplo obvio, pero hay más.
+
+Hacer que un programa sea verdaderamente no determinista es difícil, pero hay formas de hacer que al menos parezca no determinista. Una de ellas es usar algoritmos que generen números \textbf{pseudoaleatorios}. Estos números no son verdaderamente aleatorios porque se generan mediante un cálculo determinista, pero a simple vista es casi imposible distinguirlos de los aleatorios.
+
+El módulo \texttt{random} proporciona funciones que generan números pseudoaleatorios (que simplemente llamaré "aleatorios" de ahora en adelante).
+
+La función \texttt{random} devuelve un flotante aleatorio entre 0.0 y 1.0 (incluyendo 0.0 pero no 1.0). Cada vez que llamas a \texttt{random}, obtienes el siguiente número en una larga serie. Para ver un ejemplo, ejecuta este bucle:
+
+\begin{lstlisting}[language=Python]
+import random
+for i in range(10):
+    x = random.random()
+    print(x)
+\end{lstlisting}
+
+La función \texttt{randint} toma los parámetros \texttt{low} y \texttt{high} y devuelve un entero entre \texttt{low} y \texttt{high} (incluyendo ambos).
+
+\begin{lstlisting}[language=Python]
+>>> random.randint(5, 10)
+5
+>>> random.randint(5, 10)
+9
+\end{lstlisting}
+
+Para elegir un elemento de una secuencia al azar, puedes usar \texttt{choice}:
+
+\begin{lstlisting}[language=Python]
+>>> t = [1, 2, 3]
+>>> random.choice(t)
+2
+>>> random.choice(t)
+3
+\end{lstlisting}
+
+El módulo \texttt{random} también proporciona funciones para generar valores aleatorios a partir de distribuciones continuas, incluyendo Gaussianas, exponenciales, gamma y algunas más.
+
+\textbf{Ejercicio 13.5.} Escribe una función llamada \texttt{choose\_from\_hist} que tome un histograma como se define en la Sección 11.2 y devuelva un valor aleatorio del histograma, elegido con una probabilidad proporcional a su frecuencia. Por ejemplo, para este histograma:
+
+\begin{lstlisting}[language=Python]
+>>> t = ['a', 'a', 'b']
+>>> hist = histogram(t)
+>>> hist
+{'a': 2, 'b': 1}
+\end{lstlisting}
+
+tu función debería devolver \texttt{'a'} con probabilidad \(2/3\) y \texttt{'b'} con probabilidad \(1/3\).
+
+\section{Histograma de palabras}
+
+Deberías intentar los ejercicios anteriores antes de continuar. Puedes descargar mi solución desde \url{https://thinkpython.com/code/analyze_book1.py}. También necesitarás \url{https://thinkpython.com/code/emma.txt}.
+
+Aquí hay un programa que lee un archivo y construye un histograma de las palabras en el archivo:
+
+\begin{lstlisting}[language=Python]
+import string
+
+def process_file(filename):
+    hist = dict()
+    fp = open(filename)
+    for line in fp:
+        process_line(line, hist)
+    return hist
+
+def process_line(line, hist):
+    line = line.replace('-', ' ')
+    
+    for word in line.split():
+        word = word.strip(string.punctuation + string.whitespace)
+        word = word.lower()
+        hist[word] = hist.get(word, 0) + 1
+
+hist = process_file('emma.txt')
+\end{lstlisting}
+
+Este programa lee \texttt{emma.txt}, que contiene el texto de \textit{Emma} de Jane Austen.
+
+\texttt{process\_file} recorre las líneas del archivo, pasándolas una a una a \texttt{process\_line}. El histograma \texttt{hist} se utiliza como acumulador.
+
+\texttt{process\_line} usa el método \texttt{replace} para reemplazar guiones con espacios antes de usar \texttt{split} para dividir la línea en una lista de cadenas. Luego recorre la lista de palabras y usa \texttt{strip} y \texttt{lower} para eliminar puntuación y convertir a minúsculas. (Es una forma abreviada de decir que las cadenas se "convierten"; recuerda que las cadenas son inmutables, por lo que métodos como \texttt{strip} y \texttt{lower} devuelven nuevas cadenas.)
+
+Finalmente, \texttt{process\_line} actualiza el histograma creando un nuevo elemento o incrementando uno existente.
+
+Para contar el número total de palabras en el archivo, podemos sumar las frecuencias en el histograma:
+
+\begin{lstlisting}[language=Python]
+def total_words(hist):
+    return sum(hist.values())
+\end{lstlisting}
+
+El número de palabras diferentes es simplemente el número de elementos en el diccionario:
+
+\begin{lstlisting}[language=Python]
+def different_words(hist):
+    return len(hist)
+\end{lstlisting}
+
+Aquí hay un código para imprimir los resultados:
+
+\begin{lstlisting}[language=Python]
+print('Total number of words:', total_words(hist))
+print('Number of different words:', different_words(hist))
+\end{lstlisting}
+
+Y los resultados:
+
+\begin{lstlisting}[language=Python]
+Total number of words: 161080
+Number of different words: 7214
+\end{lstlisting}
+
+\section{Palabras más comunes}
+
+Para encontrar las palabras más comunes, podemos hacer una lista de tuplas, donde cada tupla contiene una palabra y su frecuencia, y ordenarla.
+
+La siguiente función toma un histograma y devuelve una lista de tuplas palabra-frecuencia:
+
+\begin{lstlisting}[language=Python]
+def most_common(hist):
+    t = []
+    for key, value in hist.items():
+        t.append((value, key))
+    
+    t.sort(reverse=True)
+    return t
+\end{lstlisting}
+
+En cada tupla, la frecuencia aparece primero, por lo que la lista resultante está ordenada por frecuencia. Aquí hay un bucle que imprime las diez palabras más comunes:
+
+\begin{lstlisting}[language=Python]
+t = most_common(hist)
+print('The most common words are:')
+for freq, word in t[:10]:
+    print(word, freq, sep='\t')
+\end{lstlisting}
+
+Uso el argumento de palabra clave \texttt{sep} para indicar a \texttt{print} que use un tabulador como "separador", en lugar de un espacio, para que la segunda columna quede alineada. Aquí están los resultados de \textit{Emma}:
+
+\begin{lstlisting}[language=Python]
+The most common words are:
+to      5242
+the     5205
+and     4897
+of      4295
+i       3191
+a       3130
+it      2529
+her     2483
+was     2400
+she     2364
+\end{lstlisting}
+
+Este código se puede simplificar usando el parámetro \texttt{key} de la función \texttt{sort}. Si tienes curiosidad, puedes leer sobre esto en \url{https://wiki.python.org/moin/HowTo/Sorting}.
+
+\section{Parámetros opcionales}
+
+Hemos visto funciones y métodos integrados que toman argumentos opcionales. También es posible escribir funciones definidas por el usuario con argumentos opcionales. Por ejemplo, aquí hay una función que imprime las palabras más comunes en un histograma:
+
+\begin{lstlisting}[language=Python]
+def print_most_common(hist, num=10):
+    t = most_common(hist)
+    print('The most common words are:')
+    for freq, word in t[:num]:
+        print(word, freq, sep='\t')
+\end{lstlisting}
+
+El primer parámetro es obligatorio; el segundo es opcional. El valor predeterminado de \texttt{num} es 10.
+
+Si solo proporcionas un argumento:
+
+\begin{lstlisting}[language=Python]
+print_most_common(hist)
+\end{lstlisting}
+
+\texttt{num} toma el valor predeterminado. Si proporcionas dos argumentos:
+
+\begin{lstlisting}[language=Python]
+print_most_common(hist, 20)
+\end{lstlisting}
+
+\texttt{num} toma el valor del argumento. En otras palabras, el argumento opcional anula el valor predeterminado.
+
+Si una función tiene parámetros obligatorios y opcionales, todos los obligatorios deben ir primero, seguidos de los opcionales.
+
+\section{Resta de diccionarios}
+
+Encontrar las palabras del libro que no están en la lista de palabras de \texttt{words.txt} es un problema que podrías reconocer como resta de conjuntos; es decir, queremos encontrar todas las palabras de un conjunto (las palabras del libro) que no están en el otro (las palabras de la lista).
+
+\texttt{subtract} toma los diccionarios \texttt{d1} y \texttt{d2} y devuelve un nuevo diccionario que contiene todas las claves de \texttt{d1} que no están en \texttt{d2}. Como realmente no nos importan los valores, los establecemos todos en \texttt{None}.
+
+\begin{lstlisting}[language=Python]
+def subtract(d1, d2):
+    res = dict()
+    for key in d1:
+        if key not in d2:
+            res[key] = None
+    return res
+\end{lstlisting}
+
+Para encontrar las palabras del libro que no están en \texttt{words.txt}, podemos usar \texttt{process\_file} para construir un histograma para \texttt{words.txt}, y luego restar:
+
+\begin{lstlisting}[language=Python]
+words = process_file('words.txt')
+diff = subtract(hist, words)
+
+print("Words in the book that aren't in the word list:")
+for word in diff:
+    print(word, end=' ')
+\end{lstlisting}
+
+Aquí están algunos de los resultados de \textit{Emma}:
+
+\begin{lstlisting}[language=Python]
+Words in the book that aren't in the word list:
+rencontre jane's blanche woodhouses disingenuousness friend's venice apartment ...
+\end{lstlisting}
+
+Algunas de estas palabras son nombres y posesivos. Otras, como "rencontre", ya no son de uso común. ¡Pero algunas son palabras comunes que realmente deberían estar en la lista!
+
+\textbf{Ejercicio 13.6.} Python proporciona una estructura de datos llamada \texttt{set} que ofrece muchas operaciones comunes de conjuntos. Puedes leer sobre ellas en la Sección 19.5 o en la documentación en \url{http://docs.python.org/3/library/stdtypes.html#types-set}.
+
+\textit{Escribe un programa que use resta de conjuntos para encontrar palabras en el libro que no están en la lista de palabras. Solución: \url{https://thinkpython.com/code/analyze_book3.py}.}
+
+\section{Palabras aleatorias}
+
+Para elegir una palabra aleatoria del histograma, el algoritmo más simple es construir una lista con múltiples copias de cada palabra, según la frecuencia observada, y luego elegir de la lista:
+
+\begin{lstlisting}[language=Python]
+def random_word(h):
+    t = []
+    for word, freq in h.items():
+        t.extend([word] * freq)
+    return random.choice(t)
+\end{lstlisting}
+
+La expresión \texttt{[word] * freq} crea una lista con \texttt{freq} copias de la cadena \texttt{word}. El método \texttt{extend} es similar a \texttt{append}, excepto que el argumento es una secuencia.
+
+Este algoritmo funciona, pero no es muy eficiente; cada vez que eliges una palabra aleatoria, reconstruye la lista, que es tan grande como el libro original. Una mejora obvia es construir la lista una vez y luego hacer múltiples selecciones, pero la lista sigue siendo grande.
+
+Una alternativa es:
+
+1. Usar \texttt{keys} para obtener una lista de las palabras en el libro.
+
+2. Construir una lista que contenga la suma acumulativa de las frecuencias de las palabras (ver Ejercicio 10.2). El último elemento de esta lista es el número total de palabras en el libro, \(n\).
+
+3. Elegir un número aleatorio entre 1 y \(n\). Usar una búsqueda por bisección (ver Ejercicio 10.10) para encontrar el índice donde se insertaría el número aleatorio en la suma acumulativa.
+
+4. Usar el índice para encontrar la palabra correspondiente en la lista de palabras.
+
+\textbf{Ejercicio 13.7.} \textit{Escribe un programa que use este algoritmo para elegir una palabra aleatoria del libro. Solución: \url{https://thinkpython.com/code/analyze_book3.py}.}
+
+\section{Análisis de Markov}
+
+Si eliges palabras del libro al azar, puedes tener una idea del vocabulario, pero probablemente no obtendrás una oración:
+
+\begin{lstlisting}[language=Python]
+this the small regard harriet which knightley's it most things
+\end{lstlisting}
+
+Una serie de palabras aleatorias rara vez tiene sentido porque no hay relación entre palabras sucesivas. Por ejemplo, en una oración real, esperarías que un artículo como "the" fuera seguido por un adjetivo o un sustantivo, y probablemente no por un verbo o adverbio.
+
+Una forma de medir este tipo de relaciones es el \textbf{análisis de Markov}, que caracteriza, para una secuencia dada de palabras, la probabilidad de las palabras que podrían venir a continuación. Por ejemplo, la canción \textit{Eric, the Half a Bee} comienza:
+
+\begin{quote}
+Half a bee, philosophically,\\
+Must, ipso facto, half not be.\\
+But half the bee has got to be\\
+Vis a vis, its entity. D'you see?\\
+\\
+But can a bee be said to be\\
+Or not to be an entire bee\\
+When half the bee is not a bee\\
+Due to some ancient injury?
+\end{quote}
+
+En este texto, la frase "half the" siempre es seguida por la palabra "bee", pero la frase "the bee" podría ser seguida por "has" o "is".
+
+El resultado del análisis de Markov es una correspondencia entre cada prefijo (como "half the" o "the bee") y todos sus posibles sufijos (como "has" e "is").
+
+A partir de este mapeo, puedes generar un texto aleatorio comenzando con cualquier prefijo y eligiendo aleatoriamente uno de los sufijos asociados. Luego, puedes combinar la última palabra del prefijo con el sufijo elegido para formar un nuevo prefijo, y repetir el proceso.
+
+Por ejemplo, si comienzas con el prefijo "Half a", la siguiente palabra debe ser "bee", ya que ese prefijo solo aparece una vez en el texto. El nuevo prefijo será entonces "a bee", por lo que el siguiente sufijo podría ser "philosophically", "be" o "due".
+
+En este ejemplo, la longitud del prefijo es siempre dos, pero puedes realizar un análisis de Markov con cualquier longitud de prefijo.
+
+\textbf{Ejercicio 13.8.} Análisis de Markov:
+
+1. Escribe un programa para leer un texto desde un archivo y realizar un análisis de Markov. El resultado debería ser un diccionario que mapee desde prefijos a una colección de sufijos posibles. La colección podría ser una lista, tupla o diccionario; depende de ti elegir la opción apropiada. Puedes probar tu programa con una longitud de prefijo dos, pero deberías escribir el programa de manera que sea fácil probar otras longitudes.
+
+2. Agrega una función al programa anterior para generar texto aleatorio basado en el análisis de Markov. Aquí hay un ejemplo de \textit{Emma} con longitud de prefijo 2:
+
+\begin{quote}
+He was very clever, be it sweetness or be angry, ashamed or only amused, at such a stroke. She had never thought of Hannah till you were never meant for me? "I cannot make speeches, Emma:" he soon cut it all himself.
+\end{quote}
+
+Para este ejemplo, dejé la puntuación unida a las palabras. El resultado es casi sintácticamente correcto, pero no del todo. Semánticamente, casi tiene sentido, pero no completamente.
+
+¿Qué sucede si aumentas la longitud del prefijo? ¿El texto aleatorio tiene más sentido?
+
+3. Una vez que tu programa funcione, podrías probar una mezcla: si combinas texto de dos o más libros, el texto aleatorio que generes mezclará el vocabulario y las frases de las fuentes de manera interesante.
+
+\textit{Crédito: Este caso de estudio está basado en un ejemplo de Kernighan y Pike, \textit{The Practice of Programming}, Addison-Wesley, 1999.}
+
+Deberías intentar este ejercicio antes de continuar; luego puedes descargar mi solución desde \url{https://thinkpython.com/code/markov.py}. También necesitarás \url{https://thinkpython.com/code/emma.txt}.
+
+\section{Estructuras de datos}
+
+Usar análisis de Markov para generar texto aleatorio es divertido, pero también hay un propósito en este ejercicio: la selección de estructuras de datos. En tu solución a los ejercicios anteriores, tuviste que elegir:
+
+\begin{itemize}
+    \item Cómo representar los prefijos.
+    \item Cómo representar la colección de sufijos posibles.
+    \item Cómo representar el mapeo desde cada prefijo a la colección de sufijos posibles.
+\end{itemize}
+
+El último es fácil: un diccionario es la opción obvia para un mapeo de claves a valores correspondientes.
+
+Para los prefijos, las opciones más obvias son cadena, lista de cadenas o tupla de cadenas.
+
+Para los sufijos, una opción es una lista; otra es un histograma (diccionario).
+
+¿Cómo elegir? El primer paso es pensar en las operaciones que necesitarás implementar para cada estructura de datos. Para los prefijos, necesitamos poder eliminar palabras del principio y agregar al final. Por ejemplo, si el prefijo actual es "Half a", y la siguiente palabra es "bee", necesitas poder formar el siguiente prefijo, "a bee".
+
+Tu primera elección podría ser una lista, ya que es fácil agregar y eliminar elementos, pero también necesitamos poder usar los prefijos como claves en un diccionario, lo que descarta las listas. Con las tuplas, no puedes agregar o eliminar, pero puedes usar el operador de suma para formar una nueva tupla:
+
+\begin{lstlisting}[language=Python]
+def shift(prefix, word):
+    return prefix[1:] + (word,)
+\end{lstlisting}
+
+\texttt{shift} toma una tupla de palabras, \texttt{prefix}, y una cadena, \texttt{word}, y forma una nueva tupla que tiene todas las palabras en \texttt{prefix} excepto la primera, y \texttt{word} agregada al final.
+
+Para la colección de sufijos, las operaciones que necesitamos realizar incluyen agregar un nuevo sufijo (o incrementar la frecuencia de uno existente) y elegir un sufijo aleatorio.
+
+Agregar un nuevo sufijo es igual de fácil para la implementación de lista o histograma. Elegir un elemento aleatorio de una lista es fácil; elegir de un histograma es más difícil de hacer eficientemente (ver Ejercicio 13.7).
+
+Hasta ahora hemos estado hablando principalmente sobre la facilidad de implementación, pero hay otros factores a considerar al elegir estructuras de datos. Uno es el tiempo de ejecución. A veces hay una razón teórica para esperar que una estructura de datos sea más rápida que otra; por ejemplo, mencioné que el operador \texttt{in} es más rápido para diccionarios que para listas, al menos cuando el número de elementos es grande.
+
+Pero a menudo no sabes de antemano cuál implementación será más rápida. Una opción es implementar ambas y ver cuál es mejor. Este enfoque se llama \textbf{benchmarking}. Una alternativa práctica es elegir la estructura de datos más fácil de implementar y ver si es lo suficientemente rápida para la aplicación prevista. Si es así, no hay necesidad de continuar. Si no, hay herramientas, como el módulo \texttt{profile}, que pueden identificar las partes de un programa que consumen más tiempo.
+
+El otro factor a considerar es el espacio de almacenamiento. Por ejemplo, usar un histograma para la colección de sufijos podría tomar menos espacio porque solo tienes que almacenar cada palabra una vez, sin importar cuántas veces aparezca en el texto. En algunos casos, ahorrar espacio también puede hacer que tu programa se ejecute más rápido, y en casos extremos, tu programa podría no ejecutarse si se queda sin memoria. Pero para muchas aplicaciones, el espacio es una consideración secundaria después del tiempo de ejecución.
+
+Un pensamiento final: en esta discusión, he implicado que deberíamos usar una estructura de datos tanto para el análisis como para la generación. Pero como estas son fases separadas, también sería posible usar una estructura para el análisis y luego convertir a otra estructura para la generación. Esto sería una ganancia neta si el tiempo ahorrado durante la generación superara el tiempo gastado en la conversión.
+
+\section{Depuración}
+
+Cuando estás depurando un programa, y especialmente si estás trabajando en un error difícil, hay cinco cosas que probar:
+
+\begin{itemize}
+    \item \textbf{Leer:} Examina tu código, léelo en voz alta y verifica que diga lo que pretendías.
+    
+    \item \textbf{Ejecutar:} Experimenta haciendo cambios y ejecutando diferentes versiones. A menudo, si muestras lo correcto en el lugar correcto del programa, el problema se vuelve obvio, pero a veces tienes que construir andamiaje.
+    
+    \item \textbf{Reflexionar:} ¡Tómate un tiempo para pensar! ¿Qué tipo de error es: sintaxis, tiempo de ejecución o semántico? ¿Qué información puedes obtener de los mensajes de error o de la salida del programa? ¿Qué tipo de error podría causar el problema que estás viendo? ¿Qué cambiaste justo antes de que apareciera el problema?
+    
+    \item \textbf{Explicar:} Si le explicas el problema a alguien más, a veces encuentras la respuesta antes de terminar de hacer la pregunta. A menudo no necesitas a la otra persona; podrías hablarle a un pato de goma. Y ese es el origen de la conocida estrategia llamada \textbf{depuración con pato de goma}. No estoy inventando esto; ver \url{https://en.wikipedia.org/wiki/Rubber_duck_debugging}.
+    
+    \item \textbf{Retroceder:} En algún momento, lo mejor es retroceder, deshaciendo cambios recientes, hasta volver a un programa que funcione y que entiendas. Luego puedes comenzar a reconstruir.
+\end{itemize}
+
+Los programadores principiantes a veces se estancan en una de estas actividades y olvidan las demás. Cada actividad viene con su propio modo de fallo.
+
+Por ejemplo, leer tu código podría ayudar si el problema es un error tipográfico, pero no si el problema es un malentendido conceptual. Si no entiendes lo que hace tu programa, puedes leerlo 100 veces y nunca ver el error, porque el error está en tu cabeza.
+
+Ejecutar experimentos puede ayudar, especialmente si ejecutas pruebas pequeñas y simples. Pero si ejecutas experimentos sin pensar o leer tu código, podrías caer en un patrón que llamo "programación de paseo aleatorio", que es el proceso de hacer cambios aleatorios hasta que el programa haga lo correcto. Obviamente, la programación de paseo aleatorio puede tomar mucho tiempo.
+
+Tienes que tomarte tiempo para pensar. La depuración es como una ciencia experimental. Deberías tener al menos una hipótesis sobre cuál es el problema. Si hay dos o más posibilidades, intenta pensar en una prueba que elimine una de ellas.
+
+Pero incluso las mejores técnicas de depuración fallarán si hay demasiados errores o si el código que estás intentando arreglar es demasiado grande y complicado. A veces, la mejor opción es retroceder, simplificando el programa hasta llegar a algo que funcione y que entiendas.
+
+Los programadores principiantes a menudo son reacios a retroceder porque no soportan eliminar una línea de código (incluso si está mal). Si te hace sentir mejor, copia tu programa en otro archivo antes de comenzar a desarmarlo. Luego puedes copiar las piezas de vuelta una por una.
+
+Encontrar un error difícil requiere leer, ejecutar, reflexionar y a veces retroceder. Si te quedas estancado en una de estas actividades, prueba las otras.
+
+\section{Glosario}
+
+\begin{description}
+    \item[determinista:] Perteneciente a un programa que hace lo mismo cada vez que se ejecuta, dadas las mismas entradas.
+    
+    \item[pseudoaleatorio:] Perteneciente a una secuencia de números que parece ser aleatoria, pero que es generada por un programa determinista.
+    
+    \item[valor predeterminado:] El valor dado a un parámetro opcional si no se proporciona un argumento.
+    
+    \item[anular:] Reemplazar un valor predeterminado con un argumento.
+    
+    \item[benchmarking:] El proceso de elegir entre estructuras de datos implementando alternativas y probándolas en una muestra de las entradas posibles.
+    
+    \item[depuración con pato de goma:] Depurar explicando tu problema a un objeto inanimado como un pato de goma. Articular el problema puede ayudarte a resolverlo, incluso si el pato de goma no sabe Python.
+\end{description}
+
+\section{Ejercicios}
+
+\textbf{Ejercicio 13.9.} El "rango" de una palabra es su posición en una lista de palabras ordenadas por frecuencia: la palabra más común tiene rango 1, la segunda más común tiene rango 2, etc.
+
+La ley de Zipf describe una relación entre los rangos y frecuencias de palabras en lenguajes naturales (\url{http://en.wikipedia.org/wiki/Zipf's_law}). Específicamente, predice que la frecuencia, \(f\), de la palabra con rango \(r\) es:
+
+\[f = cr^{-s}\]
+
+donde \(s\) y \(c\) son parámetros que dependen del idioma y el texto. Si tomas el logaritmo de ambos lados de esta ecuación, obtienes:
+
+\[\log f = \log c - s \log r\]
+
+Entonces, si graficas \(\log f\) versus \(\log r\), deberías obtener una línea recta con pendiente \(-s\) e intercepto \(\log c\).
+
+Escribe un programa que lea un texto de un archivo, cuente las frecuencias de las palabras e imprima una línea para cada palabra, en orden descendente de frecuencia, con \(\log f\) y \(\log r\). Usa el programa de gráficos de tu elección para trazar los resultados y verificar si forman una línea recta. ¿Puedes estimar el valor de \(s\)?
+
+Solución: \url{https://thinkpython.com/code/zipf.py}. Para ejecutar mi solución, necesitas el módulo de gráficos \texttt{matplotlib}. Si instalaste Anaconda, ya tienes \texttt{matplotlib}; de lo contrario, podrías tener que instalarlo.

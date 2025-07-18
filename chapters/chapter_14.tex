@@ -1,0 +1,478 @@
+%chapter 14
+
+\chapter{Archivos}
+
+Este capítulo introduce la idea de programas "persistentes" que guardan datos en almacenamiento permanente, y muestra cómo usar diferentes tipos de almacenamiento permanente, como archivos y bases de datos.
+
+\section{Persistencia}
+
+La mayoría de los programas que hemos visto hasta ahora son transitorios en el sentido de que se ejecutan por un corto tiempo y producen alguna salida, pero cuando terminan, sus datos desaparecen. Si ejecutas el programa nuevamente, comienza desde cero.
+
+Otros programas son \textbf{persistentes}: se ejecutan durante mucho tiempo (o todo el tiempo); mantienen al menos algunos de sus datos en almacenamiento permanente (un disco duro, por ejemplo); y si se cierran y reinician, continúan donde lo dejaron.
+
+Ejemplos de programas persistentes son los sistemas operativos, que se ejecutan prácticamente siempre que una computadora está encendida, y los servidores web, que se ejecutan todo el tiempo, esperando solicitudes en la red.
+
+Una de las formas más simples para que los programas mantengan sus datos es leyendo y escribiendo archivos de texto. Ya hemos visto programas que leen archivos de texto; en este capítulo veremos programas que los escriben.
+
+Una alternativa es almacenar el estado del programa en una base de datos. En este capítulo presentaré una base de datos simple y un módulo, \texttt{pickle}, que facilita el almacenamiento de datos del programa.
+
+\section{Lectura y escritura}
+
+Un archivo de texto es una secuencia de caracteres almacenados en un medio permanente como un disco duro, memoria flash o CD-ROM. Vimos cómo abrir y leer un archivo en la Sección 9.1.
+
+Para escribir un archivo, debes abrirlo con el modo 'w' como segundo parámetro:
+
+\begin{lstlisting}[language=Python]
+>>> fout = open('output.txt', 'w')
+\end{lstlisting}
+
+Si el archivo ya existe, abrirlo en modo escritura borra los datos antiguos y comienza de nuevo, ¡así que ten cuidado! Si el archivo no existe, se crea uno nuevo.
+
+\texttt{open} devuelve un objeto archivo que proporciona métodos para trabajar con el archivo. El método \texttt{write} coloca datos en el archivo.
+
+\begin{lstlisting}[language=Python]
+>>> line1 = "This here's the wattle,\n"
+>>> fout.write(line1)
+24
+\end{lstlisting}
+
+El valor de retorno es el número de caracteres que se escribieron. El objeto archivo realiza un seguimiento de su posición, por lo que si llamas a \texttt{write} nuevamente, agrega los nuevos datos al final del archivo.
+
+\begin{lstlisting}[language=Python]
+>>> line2 = "the emblem of our land.\n"
+>>> fout.write(line2)
+24
+\end{lstlisting}
+
+Cuando termines de escribir, debes cerrar el archivo.
+
+\begin{lstlisting}[language=Python]
+>>> fout.close()
+\end{lstlisting}
+
+Si no cierras el archivo, se cerrará automáticamente cuando el programa termine.
+
+\section{Operador de formato}
+
+El argumento de \texttt{write} debe ser una cadena, por lo que si queremos colocar otros valores en un archivo, debemos convertirlos a cadenas. La forma más fácil de hacerlo es con \texttt{str}:
+
+\begin{lstlisting}[language=Python]
+>>> x = 52
+>>> fout.write(str(x))
+\end{lstlisting}
+
+Una alternativa es usar el operador de formato, \%. Cuando se aplica a enteros, \% es el operador módulo. Pero cuando el primer operando es una cadena, \% es el operador de formato.
+
+El primer operando es la cadena de formato, que contiene una o más secuencias de formato, que especifican cómo se debe formatear el segundo operando. El resultado es una cadena.
+
+Por ejemplo, la secuencia de formato '\%d' significa que el segundo operando debe formatearse como un entero decimal:
+
+\begin{lstlisting}[language=Python]
+>>> camels = 42
+>>> '%d' % camels
+'42'
+\end{lstlisting}
+
+El resultado es la cadena '42', que no debe confundirse con el valor entero 42.
+
+Una secuencia de formato puede aparecer en cualquier parte de la cadena, por lo que puedes incrustar un valor en una oración:
+
+\begin{lstlisting}[language=Python]
+>>> 'I have spotted %d camels.' % camels
+'I have spotted 42 camels.'
+\end{lstlisting}
+
+Si hay más de una secuencia de formato en la cadena, el segundo argumento debe ser una tupla. Cada secuencia de formato se empareja con un elemento de la tupla, en orden.
+
+El siguiente ejemplo usa '\%d' para formatear un entero, '\%g' para formatear un número de punto flotante y '\%s' para formatear una cadena:
+
+\begin{lstlisting}[language=Python]
+>>> 'In %d years I have spotted %g %s.' % (3, 0.1, 'camels')
+'In 3 years I have spotted 0.1 camels.'
+\end{lstlisting}
+
+El número de elementos en la tupla debe coincidir con el número de secuencias de formato en la cadena. Además, los tipos de los elementos deben coincidir con las secuencias de formato:
+
+\begin{lstlisting}[language=Python]
+>>> '%d %d %d' % (1, 2)
+TypeError: not enough arguments for format string
+>>> '%d' % 'dollars'
+TypeError: %d format: a number is required, not str
+\end{lstlisting}
+
+En el primer ejemplo, no hay suficientes elementos; en el segundo, el elemento es del tipo incorrecto.
+
+Para obtener más información sobre el operador de formato, consulta \url{https://docs.python.org/3/library/stdtypes.html#printf-style-string-formatting}. Una alternativa más poderosa es el método de formato de cadenas, que puedes leer en \url{https://docs.python.org/3/library/stdtypes.html#str.format}.
+
+\section{Nombres de archivos y rutas}
+
+Los archivos se organizan en \textbf{directorios} (también llamados "carpetas"). Cada programa en ejecución tiene un "directorio actual", que es el directorio predeterminado para la mayoría de las operaciones. Por ejemplo, cuando abres un archivo para leerlo, Python lo busca en el directorio actual.
+
+El módulo \texttt{os} proporciona funciones para trabajar con archivos y directorios ("os" significa "sistema operativo"). \texttt{os.getcwd} devuelve el nombre del directorio actual:
+
+\begin{lstlisting}[language=Python]
+>>> import os
+>>> cwd = os.getcwd()
+>>> cwd
+'/home/dinsdale'
+\end{lstlisting}
+
+\texttt{cwd} significa "directorio de trabajo actual". El resultado en este ejemplo es \texttt{/home/dinsdale}, que es el directorio principal de un usuario llamado dinsdale.
+
+Una cadena como \texttt{'/home/dinsdale'} que identifica un archivo o directorio se llama \textbf{ruta}.
+
+Un nombre de archivo simple, como \texttt{memo.txt}, también se considera una ruta, pero es una \textbf{ruta relativa} porque se relaciona con el directorio actual. Si el directorio actual es \texttt{/home/dinsdale}, el nombre de archivo \texttt{memo.txt} se referiría a \texttt{/home/dinsdale/memo.txt}.
+
+Una ruta que comienza con \texttt{/} no depende del directorio actual; se llama \textbf{ruta absoluta}. Para encontrar la ruta absoluta de un archivo, puedes usar \texttt{os.path.abspath}:
+
+\begin{lstlisting}[language=Python]
+>>> os.path.abspath('memo.txt')
+'/home/dinsdale/memo.txt'
+\end{lstlisting}
+
+\texttt{os.path} proporciona otras funciones para trabajar con nombres de archivos y rutas. Por ejemplo, \texttt{os.path.exists} verifica si un archivo o directorio existe:
+
+\begin{lstlisting}[language=Python]
+>>> os.path.exists('memo.txt')
+True
+\end{lstlisting}
+
+Si existe, \texttt{os.path.isdir} verifica si es un directorio:
+
+\begin{lstlisting}[language=Python]
+>>> os.path.isdir('memo.txt')
+False
+>>> os.path.isdir('/home/dinsdale')
+True
+\end{lstlisting}
+
+De manera similar, \texttt{os.path.isfile} verifica si es un archivo.
+
+\texttt{os.listdir} devuelve una lista de los archivos (y otros directorios) en el directorio dado:
+
+\begin{lstlisting}[language=Python]
+>>> os.listdir(cwd)
+['music', 'photos', 'memo.txt']
+\end{lstlisting}
+
+Para demostrar estas funciones, el siguiente ejemplo "recorre" un directorio, imprime los nombres de todos los archivos y se llama a sí mismo recursivamente en todos los directorios.
+
+\begin{lstlisting}[language=Python]
+def walk(dirname):
+    for name in os.listdir(dirname):
+        path = os.path.join(dirname, name)
+        if os.path.isfile(path):
+            print(path)
+        else:
+            walk(path)
+\end{lstlisting}
+
+\texttt{os.path.join} toma un directorio y un nombre de archivo y los une en una ruta completa.
+
+El módulo \texttt{os} proporciona una función llamada \texttt{walk} que es similar a esta pero más versátil. Como ejercicio, lee la documentación y úsala para imprimir los nombres de los archivos en un directorio dado y sus subdirectorios. Puedes descargar mi solución desde \url{https://thinkpython.com/code/walk.py}.
+
+\section{Manejo de excepciones}
+
+Muchas cosas pueden salir mal cuando intentas leer y escribir archivos. Si intentas abrir un archivo que no existe, obtienes un \texttt{FileNotFoundError}:
+
+\begin{lstlisting}[language=Python]
+>>> fin = open('bad_file')
+FileNotFoundError: [Errno 2] No such file or directory: 'bad_file'
+\end{lstlisting}
+
+Si no tienes permiso para acceder a un archivo:
+
+\begin{lstlisting}[language=Python]
+>>> fout = open('/etc/passwd', 'w')
+PermissionError: [Errno 13] Permission denied: '/etc/passwd'
+\end{lstlisting}
+
+Y si intentas abrir un directorio para lectura, obtienes:
+
+\begin{lstlisting}[language=Python]
+>>> fin = open('/home')
+IsADirectoryError: [Errno 21] Is a directory: '/home'
+\end{lstlisting}
+
+Para evitar estos errores, podrías usar funciones como \texttt{os.path.exists} y \texttt{os.path.isfile}, pero tomaría mucho tiempo y código verificar todas las posibilidades (si "Errno 21" es alguna indicación, hay al menos 21 cosas que pueden salir mal).
+
+Es mejor intentarlo y lidiar con los problemas si ocurren, que es exactamente lo que hace la sentencia \texttt{try}. La sintaxis es similar a una sentencia \texttt{if...else}:
+
+\begin{lstlisting}[language=Python]
+try:
+    fin = open('bad_file')
+except:
+    print('Something went wrong.')
+\end{lstlisting}
+
+Python comienza ejecutando la cláusula \texttt{try}. Si todo va bien, omite la cláusula \texttt{except} y continúa. Si ocurre una excepción, sale de la cláusula \texttt{try} y ejecuta la cláusula \texttt{except}.
+
+Manejar una excepción con una sentencia \texttt{try} se llama \textbf{capturar} una excepción. En este ejemplo, la cláusula \texttt{except} imprime un mensaje de error que no es muy útil. En general, capturar una excepción te da la oportunidad de solucionar el problema, intentarlo nuevamente o al menos terminar el programa de manera elegante.
+
+\section{Bases de datos}
+
+Una \textbf{base de datos} es un archivo organizado para almacenar datos. Muchas bases de datos están organizadas como un diccionario en el sentido de que mapean claves a valores. La mayor diferencia entre una base de datos y un diccionario es que la base de datos está en disco (u otro almacenamiento permanente), por lo que persiste después de que el programa termina.
+
+El módulo \texttt{dbm} proporciona una interfaz para crear y actualizar archivos de base de datos. Como ejemplo, crearé una base de datos que contiene subtítulos para archivos de imagen.
+
+Abrir una base de datos es similar a abrir otros archivos:
+
+\begin{lstlisting}[language=Python]
+>>> import dbm
+>>> db = dbm.open('captions', 'c')
+\end{lstlisting}
+
+El modo 'c' significa que la base de datos debe crearse si no existe ya. El resultado es un objeto de base de datos que se puede usar (para la mayoría de las operaciones) como un diccionario.
+
+Cuando creas un nuevo elemento, \texttt{dbm} actualiza el archivo de la base de datos.
+
+\begin{lstlisting}[language=Python]
+>>> db['cleese.png'] = 'Photo of John Cleese.'
+\end{lstlisting}
+
+Cuando accedes a uno de los elementos, \texttt{dbm} lee el archivo:
+
+\begin{lstlisting}[language=Python]
+>>> db['cleese.png']
+b'Photo of John Cleese.'
+\end{lstlisting}
+
+El resultado es un \textbf{objeto bytes}, que es similar a una cadena en muchos aspectos. Cuando profundices en Python, la diferencia se volverá importante, pero por ahora podemos ignorarla.
+
+Si haces otra asignación a una clave existente, \texttt{dbm} reemplaza el valor antiguo:
+
+\begin{lstlisting}[language=Python]
+>>> db['cleese.png'] = 'Photo of John Cleese doing a silly walk.'
+>>> db['cleese.png']
+b'Photo of John Cleese doing a silly walk.'
+\end{lstlisting}
+
+Algunos métodos de diccionario, como \texttt{keys} e \texttt{items}, no funcionan con objetos de base de datos. Pero la iteración con un bucle \texttt{for} sí funciona:
+
+\begin{lstlisting}[language=Python]
+for key in db.keys():
+    print(key, db[key])
+\end{lstlisting}
+
+Como con otros archivos, debes cerrar la base de datos cuando termines:
+
+\begin{lstlisting}[language=Python]
+>>> db.close()
+\end{lstlisting}
+
+\section{Pickling}
+
+Una limitación de \texttt{dbm} es que las claves y los valores deben ser cadenas o bytes. Si intentas usar cualquier otro tipo, obtienes un error.
+
+El módulo \texttt{pickle} puede ayudar. Traduce casi cualquier tipo de objeto en una cadena adecuada para almacenamiento en una base de datos, y luego traduce las cadenas de vuelta a objetos.
+
+\texttt{pickle.dumps} toma un objeto como parámetro y devuelve una representación de cadena (\texttt{dumps} es la abreviatura de "dump string"):
+
+\begin{lstlisting}[language=Python]
+>>> import pickle
+>>> t = [1, 2, 3]
+>>> pickle.dumps(t)
+b'\x80\x03]q\x00(K\x01K\x02K\x03e.'
+\end{lstlisting}
+
+El formato no es obvio para los lectores humanos; está diseñado para que \texttt{pickle} lo interprete fácilmente. \texttt{pickle.loads} ("load string") reconstituye el objeto:
+
+\begin{lstlisting}[language=Python]
+>>> t1 = [1, 2, 3]
+>>> s = pickle.dumps(t1)
+>>> t2 = pickle.loads(s)
+>>> t2
+[1, 2, 3]
+\end{lstlisting}
+
+Aunque el nuevo objeto tiene el mismo valor que el antiguo, no es (en general) el mismo objeto:
+
+\begin{lstlisting}[language=Python]
+>>> t1 == t2
+True
+>>> t1 is t2
+False
+\end{lstlisting}
+
+En otras palabras, hacer \texttt{pickle} y luego \texttt{unpickle} tiene el mismo efecto que copiar el objeto.
+
+Puedes usar \texttt{pickle} para almacenar no cadenas en una base de datos. De hecho, esta combinación es tan común que se ha encapsulado en un módulo llamado \texttt{shelve}.
+
+\section{Tuberías}
+
+La mayoría de los sistemas operativos proporcionan una interfaz de línea de comandos, también conocida como shell. Los shells generalmente proporcionan comandos para navegar por el sistema de archivos y lanzar aplicaciones. Por ejemplo, en Unix puedes cambiar de directorio con \texttt{cd}, mostrar el contenido de un directorio con \texttt{ls} y lanzar un navegador web escribiendo (por ejemplo) \texttt{firefox}.
+
+Cualquier programa que puedas lanzar desde el shell también puedes lanzarlo desde Python usando un objeto tubería, que representa un programa en ejecución.
+
+Por ejemplo, el comando Unix \texttt{ls -l} normalmente muestra el contenido del directorio actual en formato largo. Puedes lanzar \texttt{ls} con \texttt{os.popen}\footnote{\texttt{popen} está obsoleto ahora, lo que significa que se supone que debemos dejar de usarlo y comenzar a usar el módulo \texttt{subprocess}. Pero para casos simples, encuentro \texttt{subprocess} más complicado de lo necesario. Así que seguiré usando \texttt{popen} hasta que lo eliminen.}:
+
+\begin{lstlisting}[language=Python]
+>>> cmd = 'ls -l'
+>>> fp = os.popen(cmd)
+\end{lstlisting}
+
+El argumento es una cadena que contiene un comando de shell. El valor de retorno es un objeto que se comporta como un archivo abierto. Puedes leer la salida del proceso \texttt{ls} una línea a la vez con \texttt{readline} u obtener todo de una vez con \texttt{read}:
+
+\begin{lstlisting}[language=Python]
+>>> res = fp.read()
+\end{lstlisting}
+
+Cuando termines, cierras la tubería como un archivo:
+
+\begin{lstlisting}[language=Python]
+>>> stat = fp.close()
+>>> print(stat)
+None
+\end{lstlisting}
+
+El valor de retorno es el estado final del proceso \texttt{ls}; \texttt{None} significa que terminó normalmente (sin errores).
+
+Por ejemplo, la mayoría de los sistemas Unix proporcionan un comando llamado \texttt{md5sum} que lee el contenido de un archivo y calcula una "suma de comprobación". Puedes leer sobre MD5 en \url{http://en.wikipedia.org/wiki/Md5}. Este comando proporciona una forma eficiente de verificar si dos archivos tienen el mismo contenido. La probabilidad de que diferentes contenidos produzcan la misma suma de comprobación es muy pequeña (es decir, es poco probable que ocurra antes de que el universo colapse).
+
+Puedes usar una tubería para ejecutar \texttt{md5sum} desde Python y obtener el resultado:
+
+\begin{lstlisting}[language=Python]
+>>> filename = 'book.tex'
+>>> cmd = 'md5sum ' + filename
+>>> fp = os.popen(cmd)
+>>> res = fp.read()
+>>> stat = fp.close()
+>>> print(res)
+1e0033f0ed0656636de0d75144ba32e0  book.tex
+>>> print(stat)
+None
+\end{lstlisting}
+
+\section{Escribir módulos}
+
+Cualquier archivo que contenga código Python puede importarse como un módulo. Por ejemplo, supongamos que tienes un archivo llamado \texttt{wc.py} con el siguiente código:
+
+\begin{lstlisting}[language=Python]
+def linecount(filename):
+    count = 0
+    for line in open(filename):
+        count += 1
+    return count
+
+print(linecount('wc.py'))
+\end{lstlisting}
+
+Si ejecutas este programa, se leerá a sí mismo e imprimirá el número de líneas en el archivo, que es 7. También puedes importarlo así:
+
+\begin{lstlisting}[language=Python]
+>>> import wc
+7
+\end{lstlisting}
+
+Ahora tienes un objeto módulo \texttt{wc}:
+
+\begin{lstlisting}[language=Python]
+>>> wc
+<module 'wc' from 'wc.py'>
+\end{lstlisting}
+
+El objeto módulo proporciona \texttt{linecount}:
+
+\begin{lstlisting}[language=Python]
+>>> wc.linecount('wc.py')
+7
+\end{lstlisting}
+
+Así es como escribes módulos en Python.
+
+El único problema con este ejemplo es que cuando importas el módulo, ejecuta el código de prueba en la parte inferior. Normalmente, cuando importas un módulo, define nuevas funciones pero no las ejecuta.
+
+Los programas que se importarán como módulos a menudo usan el siguiente idiom:
+
+\begin{lstlisting}[language=Python]
+if __name__ == '__main__':
+    print(linecount('wc.py'))
+\end{lstlisting}
+
+\texttt{\_\_name\_\_} es una variable incorporada que se establece cuando comienza el programa. Si el programa se ejecuta como un script, \texttt{\_\_name\_\_} tiene el valor \texttt{'\_\_main\_\_'}; en ese caso, se ejecuta el código de prueba. De lo contrario, si el módulo se está importando, el código de prueba se omite.
+
+Como ejercicio, escribe este ejemplo en un archivo llamado \texttt{wc.py} y ejecútalo como un script. Luego ejecuta el intérprete de Python e importa \texttt{wc}. ¿Cuál es el valor de \texttt{\_\_name\_\_} cuando el módulo se está importando?
+
+Advertencia: Si importas un módulo que ya ha sido importado, Python no hace nada. No vuelve a leer el archivo, incluso si ha cambiado.
+
+Si deseas recargar un módulo, puedes usar la función incorporada \texttt{reload}, pero puede ser complicado, por lo que lo más seguro es reiniciar el intérprete y luego importar el módulo nuevamente.
+
+\section{Depuración}
+
+Cuando estás leyendo y escribiendo archivos, puedes encontrarte con problemas relacionados con los espacios en blanco. Estos errores pueden ser difíciles de depurar porque los espacios, tabulaciones y nuevas líneas normalmente son invisibles:
+
+\begin{lstlisting}[language=Python]
+>>> s = '1 2\t 3\n 4'
+>>> print(s)
+1 2  3
+ 4
+\end{lstlisting}
+
+La función incorporada \texttt{repr} puede ayudar. Toma cualquier objeto como argumento y devuelve una representación de cadena del objeto. Para las cadenas, representa los caracteres de espacio en blanco con secuencias de escape:
+
+\begin{lstlisting}[language=Python]
+>>> print(repr(s))
+'1 2\t 3\n 4'
+\end{lstlisting}
+
+Esto puede ser útil para la depuración.
+
+Otro problema que puedes encontrar es que diferentes sistemas usan diferentes caracteres para indicar el final de una línea. Algunos sistemas usan una nueva línea, representada por \texttt{\textbackslash n}. Otros usan un carácter de retorno, representado por \texttt{\textbackslash r}. Algunos usan ambos. Si mueves archivos entre diferentes sistemas, estas inconsistencias pueden causar problemas.
+
+Para la mayoría de los sistemas, hay aplicaciones para convertir de un formato a otro. Puedes encontrarlas (y leer más sobre este tema) en \url{http://en.wikipedia.org/wiki/Newline}. O, por supuesto, podrías escribir una tú mismo.
+
+\section{Glosario}
+
+\begin{description}
+\item[Persistente:] Relativo a un programa que se ejecuta indefinidamente y mantiene al menos algunos de sus datos en almacenamiento permanente.
+
+\item[Operador de formato:] Un operador, \%, que toma una cadena de formato y una tupla y genera una cadena que incluye los elementos de la tupla formateados como especifica la cadena de formato.
+
+\item[Cadena de formato:] Una cadena, utilizada con el operador de formato, que contiene secuencias de formato.
+
+\item[Secuencia de formato:] Una secuencia de caracteres en una cadena de formato, como \%d, que especifica cómo se debe formatear un valor.
+
+\item[Archivo de texto:] Una secuencia de caracteres almacenada en un medio permanente como un disco duro.
+
+\item[Directorio:] Una colección nombrada de archivos, también llamada carpeta.
+
+\item[Ruta:] Una cadena que identifica un archivo.
+
+\item[Ruta relativa:] Una ruta que comienza desde el directorio actual.
+
+\item[Ruta absoluta:] Una ruta que comienza desde el directorio superior en el sistema de archivos.
+
+\item[Capturar:] Evitar que una excepción termine un programa usando las sentencias \texttt{try} y \texttt{except}.
+
+\item[Base de datos:] Un archivo cuyos contenidos están organizados como un diccionario con claves que corresponden a valores.
+
+\item[Objeto bytes:] Un objeto similar a una cadena.
+
+\item[Shell:] Un programa que permite a los usuarios escribir comandos y luego ejecutarlos iniciando otros programas.
+
+\item[Objeto tubería:] Un objeto que representa un programa en ejecución, permitiendo que un programa de Python ejecute comandos y lea los resultados.
+\end{description}
+
+\section{Ejercicios}
+
+\begin{enumerate}
+\item \textbf{Ejercicio 14.1.} Escribe una función llamada \texttt{sed} que tome como argumentos una cadena de patrón, una cadena de reemplazo y dos nombres de archivo; debe leer el primer archivo y escribir el contenido en el segundo archivo (creándolo si es necesario). Si la cadena de patrón aparece en cualquier parte del archivo, debe reemplazarse con la cadena de reemplazo.
+
+Si ocurre un error al abrir, leer, escribir o cerrar archivos, tu programa debe capturar la excepción, imprimir un mensaje de error y salir. Solución: \url{https://thinkpython.com/code/sed.py}.
+
+\item \textbf{Ejercicio 14.2.} Si descargas mi solución al Ejercicio 12.2 desde \url{https://thinkpython.com/code/anagram_sets.py}, verás que crea un diccionario que mapea desde una cadena ordenada de letras a la lista de palabras que se pueden escribir con esas letras. Por ejemplo, 'opst' se mapea a la lista ['opts', 'post', 'pots', 'spot', 'stop', 'tops'].
+
+Escribe un módulo que importe \texttt{anagram\_sets} y proporcione dos nuevas funciones: \texttt{store\_anagrams} debe almacenar el diccionario de anagramas en un ``estante''; \texttt{read\_anagrams} debe buscar una palabra y devolver una lista de sus anagramas. Solución: \url{https://thinkpython.com/code/anagram_db.py}.
+
+\item \textbf{Ejercicio 14.3.} En una gran colección de archivos MP3, puede haber más de una copia de la misma canción, almacenada en diferentes directorios o con diferentes nombres de archivo. El objetivo de este ejercicio es buscar duplicados.
+
+\begin{enumerate}
+\item Escribe un programa que busque en un directorio y todos sus subdirectorios, recursivamente, y devuelva una lista de rutas completas para todos los archivos con un sufijo dado (como .mp3). Pista: \texttt{os.path} proporciona varias funciones útiles para manipular nombres de archivos y rutas.
+
+\item Para reconocer duplicados, puedes usar \texttt{md5sum} para calcular una "suma de comprobación" para cada archivo. Si dos archivos tienen la misma suma de comprobación, probablemente tienen el mismo contenido.
+
+\item Para verificar, puedes usar el comando Unix \texttt{diff}.
+\end{enumerate}
+
+Solución: \url{https://thinkpython.com/code/find_duplicates.py}.
+\end{enumerate}
