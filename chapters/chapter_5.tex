@@ -1,586 +1,546 @@
 %Capítulo 3
 
-\chapter{Funciones}
+\chapter{Recurción y condicionales}
 
-En el contexto de la programación, una \textbf{función} es una secuencia nombrada de declaraciones que realiza una computación. Cuando defines una función, especificas el nombre y la secuencia de declaraciones. Más tarde, puedes ``llamar'' a la función por su nombre.
+El tema principal de este capítulo es la declaración if, que ejecuta código diferente dependiendo del estado del programa. Pero primero quiero introducir dos nuevos operadores: división entera y módulo.
 
-\section{Llamadas a funciones}
+\section{División entera y módulo}
 
-Ya hemos visto un ejemplo de una llamada a función:
+El operador de \textbf{división entera}, \texttt{//}, divide dos números y redondea hacia abajo a un entero. Por ejemplo, supongamos que la duración de una película es de 105 minutos. Podrías querer saber cuánto tiempo es eso en horas. La división convencional devuelve un número de punto flotante:
 
-\begin{verbatim}
->>> type(42)
-<class 'int'>
-\end{verbatim}
+\begin{lstlisting}
+>>> minutes = 105
+>>> minutes / 60
+1.75
+\end{lstlisting}
 
-El nombre de la función es \texttt{type}. La expresión entre paréntesis se llama el \textbf{argumento} de la función. El resultado, para esta función, es el tipo del argumento.
+Pero normalmente no escribimos las horas con puntos decimales. La división entera devuelve el número entero de horas, redondeando hacia abajo:
 
-Es común decir que una función ``toma'' un argumento y ``devuelve'' un resultado. El resultado también se llama el \textbf{valor de retorno}.
+\begin{lstlisting}
+>>> minutes = 105
+>>> hours = minutes // 60
+>>> hours
+1
+\end{lstlisting}
 
-Python proporciona funciones que convierten valores de un tipo a otro. La función \texttt{int} toma cualquier valor y lo convierte a un entero, si puede, o se queja de lo contrario:
+Para obtener el resto, podrías restar una hora en minutos:
 
-\begin{verbatim}
->>> int('32')
-32
->>> int('Hello')
-ValueError: invalid literal for int(): Hello
-\end{verbatim}
+\begin{lstlisting}
+>>> remainder = minutes - hours * 60
+>>> remainder
+45
+\end{lstlisting}
 
-\texttt{int} puede convertir valores de punto flotante a enteros, pero no redondea; corta la parte fraccionaria:
+Una alternativa es usar el \textbf{operador módulo}, \texttt{\%}, que divide dos números y devuelve el resto.
 
-\begin{verbatim}
->>> int(3.99999)
+\begin{lstlisting}
+>>> remainder = minutes % 60
+>>> remainder
+45
+\end{lstlisting}
+
+El operador módulo es más útil de lo que parece. Por ejemplo, puedes verificar si un número es divisible por otro---si \texttt{x \% y} es cero, entonces $x$ es divisible por $y$.
+
+Además, puedes extraer el código o dígitos más a la derecha de un número. Por ejemplo, \texttt{x \% 10} da como resultado el dígito más a la derecha de \texttt{x} (en base 10). De manera similar, \texttt{x \% 100} da como resultado los últimos dos dígitos.
+
+Si estás usando Python 2, la división  funciona de manera diferente. El operador de división de punto flotante si cualqueira de los operadores es un flotante.
+
+\section{Expresiones booleanas}
+
+Una expresión booleana es una expresión que es verdadera o falsa. Los siguientes ejemplos usan el operador \texttt{==}, que compara dos operandos y produce \texttt{True} si son iguales y \texttt{False} en caso contrario:
+
+\begin{lstlisting}
+>>> 5 == 5
+True
+>>> 5 == 6
+False
+\end{lstlisting}
+
+\texttt{True} y \texttt{False} son valores especiales que pertenecen al tipo \texttt{bool}; no son cadenas:
+
+\begin{lstlisting}
+>>> type(True)
+<class 'bool'>
+>>> type(False)
+<class 'bool'>
+\end{lstlisting}
+
+El operador \texttt{==} es uno de los operadores relacionales; los otros son:
+
+\begin{lstlisting}
+x != y    # x no es igual a y
+x > y     # x es mayor que y
+x < y     # x es menor que y
+x >= y    # x es mayor o igual que y
+x <= y    # x es menor o igual que y
+\end{lstlisting}
+
+Aunque estas operaciones probablemente te resulten familiares, los símbolos de Python son diferentes de los símbolos matemáticos. Un error común es usar un solo signo igual (\texttt{=}) en lugar de un doble signo igual (\texttt{==}). Recuerda que \texttt{=} es un operador de asignación y \texttt{==} es un operador relacional. No existe tal cosa como \texttt{=<} o \texttt{=>}.
+
+\section{Operadores lógicos}
+
+Hay tres operadores lógicos: \texttt{and}, \texttt{or}, y \texttt{not}. La semántica (significado) de estos operadores es similar a su significado en inglés. Por ejemplo, \texttt{x > 0 and x < 10} es verdadero solo si $x$ es mayor que 0 y menor que 10.
+
+\texttt{n\%2 == 0 or n\%3 == 0} es verdadero si cualquiera de las condiciones o ambas son verdaderas, es decir, si el número es divisible por \texttt{2 or 3}.
+
+Finalmente, el operador \texttt{not} niega una expresión booleana, así que \texttt{not (x > y)} es verdadero si \texttt{x > y} es falso, es decir, si $x$ es menor o igual que $y$.
+
+Estrictamente hablando, los operandos de los operadores lógicos deberían ser expresiones booleanas, pero Python no es muy estricto. Cualquier número diferente de cero se interpreta como \texttt{True}.
+
+\begin{lstlisting}
+    >>> 42 and True
+    True
+\end{lstlisting}
+
+Esta flexibilidad ouede ser útil, pero hay algunas sutilezas que podrían resultar confusas. Podrías querer evitarlo (a menos que sepas lo que estás haciendo).
+
+\section{Ejecición condicional}
+para esribir programas útiles, casi siempre necesitamos la capcacidad de verificar condiciones y cambiar el comportamiento del progrema en consecuencia. Las \textbf{sentencias condicionales} nos dan esta habilidad. La forma más simple es la sentencia \texttt{if}:
+
+\begin{lstlisting}
+    if x > 0:
+        print('x es positivo')
+\end{lstlisting}
+
+La expresión booleana después de \texttt{if} se llama la condición. Si es verdadera, se ejecuta la instrucción indentada. Si no, no sucede nada.
+
+Las declaraciones \texttt{if} tienen la misma estructura que las definiciones de funciones: un encabezado seuido de un cuerpo indentado. Declaraciones como esta sellaman declaraciones cmpuestas.
+
+No hay límite en el número de declaraciones que pueden aparecer en el cuerpo, ero debe habero al menos una. Ocasionalmente, es útil tener un cuerpo sin declaraciones (generalmente como un marcador de posicion para el código no escrito aún). En ese caso, puedes usar la declaración \texttt{pass}, que no hace nada.
+
+\begin{lstlisting}
+    if x < 0:
+        pass    #TODO: necesito manejar los valores negativos
+\end{lstlisting}
+
+\section{Ejecución alternativa}
+
+Una segunda forma de la declaraión \texttt{if} es la "ejecición alternativa" , en la que hay dos posibilidades y la condición determina cuál se ejecuta. La sinaxis es la siguiente:
+
+\begin{lstlisting}
+    if x % 2 == 0:
+        print('x es par')
+    else:
+        print('x es impar')
+\end{lstlisting}
+
+Si el resto cuando x se divide por 2 es 0, entoncessabemos que x es par, y el programa muestra un mensaje apropiado. Si la condición es falsa, se ejecuta el segundo conjunto de instrucciones. Dado que la condición debe ser verdadera o falsa, exactamente una de las alternativas se ejecutará. Las alternativas se llaman ramas, porque son ramas en el flujo de ejecición.
+
+\section{Condicionales unidas}
+
+A veces hay más de dos posibilidades y necesitamos más de dos ramas. Una forma de expresar un cálculo así es una condicional encadenada:
+
+\begin{lstlisting}
+    if x < y:
+        print('x es menor que y')
+    elif x > y:
+        print('x es mayor que y')
+    else:
+        print('x es igual a y')
+\end{lstlisting}
+
+\texttt{elif} es una abreviatura de "else if". Nuevamente, exactamente una rama se ejecutará. No hay límite en el número de declaraciones \texttt{elif}. SI hay un cláusula \texttt{else}, tiene que estar al final, pero no es necesario que haya una.
+
+\begin{lstlisting}
+    if choice == 'a':
+        draw_a()
+    elif choice == 'b':
+        draw_n()
+    elif choice == 'c':
+        draw_c()
+\end{lstlisting}
+
+Cada condición se verifica en orden. Si la primera es falsa, se verifica la siguiente, y así sucesivamente. Si una de ellas es verdadera, se ejecuta la rama correspondiente y la declaración termina. Incluso si más de una condición es verdadera, solo se ejecuta la primera rama verdadera.
+
+\section{Condicionales anidadas}
+
+Una condicional también puede estar anidada dentro de otra. Podríamos haber escrito el ejemplo de la sección anterior de esta manera:
+
+\begin{lstlisting}
+if x == y:
+    print('x y y son iguales')
+else:
+    if x < y:
+        print('x es menor que y')
+    else:
+        print('x es mayor que y')
+\end{lstlisting}
+
+La condicional externa contiene dos ramas. La primera rama contiene una declaración simple. La segunda rama contiene otra declaración \texttt{if}, que tiene dos ramas propias. Esas dos ramas son ambas declaraciones simples, aunque también podrían haber sido declaraciones condicionales.
+
+Aunque la indentación de las declaraciones hace que la estructura sea evidente, las condicionales anidadas se vuelven difíciles de leer muy rápidamente. Es una buena idea evitarlas cuando sea posible.
+
+Los operadores lógicos a menudo proporcionan una manera de simplificar las declaraciones condicionales anidadas. Por ejemplo, podemos reescribir el siguiente código usando una sola condicional:
+
+\begin{lstlisting}
+if 0 < x:
+    if x < 10:
+        print('x is a positive single-digit number.')
+\end{lstlisting}
+
+La declaración \texttt{print} se ejecuta solo si pasamos ambas condicionales, así que podemos obtener el mismo efecto con el operador \texttt{and}:
+
+\begin{lstlisting}
+if 0 < x and x < 10:
+    print('x es un numero positivo de un solo digito.')
+\end{lstlisting}
+
+Para ese tipo de condición, Python proporciona una opción más concisa:
+
+\begin{lstlisting}
+def coundown(n):
+if 0 < x < 10:
+    print('x es un numero positivo de un solo digito.')
+\end{lstlisting}
+
+\section{Recursión}
+
+Es legal que una función llame a otra; también es legal que una función se llame a sí misma. Puede que no sea obvio por qué eso es algo bueno, pero resulta ser una de las cosas más mágicas que un programa puede hacer. Por ejemplo, observa la siguiente función:
+
+\begin{lstlisting}
+def countdown(n):
+    if n <= 0:
+        print('Despegue!')
+    else:
+        print(n)
+        countdown(n - 1)
+\end{lstlisting}
+
+Si \texttt{n} es 0 o negativo, devuelve la palabra "Despegue". De lo contrario, devuelve \texttt{n} y luego llama a la función \texttt{countdown} \_\_itself\_\_ pasando \texttt{n - 1} como argumento.
+
+¿Qué pasa si llamamos a esta función así?
+
+\begin{lstlisting}
+>>> countdown(3)
+\end{lstlisting}
+
+La ejecución de \texttt{countdown} comienza con $n=3$, y como $n$ es mayor que 0, imprime el valor 3, y luego se llama a sí misma...
+
+\quad La ejecución de \texttt{countdown} comienza con $n=2$, y como $n$ es mayor que 0, imprime el valor 2, y luego se llama a sí misma...
+
+\quad\quad La ejecución de \texttt{countdown} comienza con $n=1$, y como $n$ es mayor que 0, imprime el valor 1, y luego se llama a sí misma...
+
+\quad\quad\quad La ejecución de \texttt{countdown} comienza con $n=0$, y como $n$ no es mayor que 0, imprime la palabra ``Blastoff!'' y luego regresa.
+
+\quad\quad El \texttt{countdown} que recibió $n=1$ regresa.
+
+\quad El \texttt{countdown} que recibió $n=2$ regresa.
+
+El \texttt{countdown} que recibió $n=3$ regresa.
+
+Y entonces estás de vuelta en \texttt{\_\_main\_\_}. Así, la salida total se ve así:
+
+\begin{lstlisting}
 3
->>> int(-2.3)
--2
-\end{verbatim}
-
-\texttt{float} convierte enteros y cadenas a números de punto flotante:
-
-\begin{verbatim}
->>> float(32)
-32.0
->>> float('3.14159')
-3.14159
-\end{verbatim}
-
-Finalmente, \texttt{str} convierte su argumento a una cadena de texto:
-
-\begin{lstlisting}
->>> str(32)
-'32'
->>> str(3.14159)
-'3.14159'
+2
+1
+Despegue!
 \end{lstlisting}
 
-\section{Funciones Matemáticas}
+Una función que se llama a sí misma es recursiva; el proceso de ejecutarla se llama recursión.
 
-Python tiene un módulo \texttt{math} que proporciona la mayoría de las funciones matemáticas familiares. Un módulo es un archivo que contiene una colección de funciones relacionadas.
-
-Antes de poder usar las funciones en un módulo, tenemos que importarlo con una declaración de importación:
+Como otro ejemplo, podemos escribir una función que imprima una cadena $n$ veces.
 
 \begin{lstlisting}
->>> import math
+def print_n(s, n):
+    if n <= 0:
+        return
+    print(s)
+    print_n(s, n-1)
 \end{lstlisting}
-
-Esta declaración crea un objeto módulo llamado \texttt{math}. Si muestras el objeto módulo, obtienes información sobre él:
-
-\begin{lstlisting}
->>> math
-<module 'math' (built-in)>
-\end{lstlisting}
-
-El objeto módulo contiene las funciones y variables definidas en el módulo. Para acceder a una de las funciones, tienes que especificar el nombre del módulo y el nombre de la función, separados por un punto (también conocido como período). Este formato se llama notación de punto.
-
-\begin{lstlisting}
->>> ratio = signal_power / noise_power
->>> decibels = 10 * math.log10(ratio)
-
->>> radians = 0.7
->>> height = math.sin(radians)
-\end{lstlisting}
-
-El primer ejemplo usa \texttt{math.log10} para calcular una relación señal-ruido en decibelios (asumiendo que \texttt{signal\_power} y \texttt{noise\_power} están definidos). El módulo \texttt{math} también proporciona \texttt{log}, que calcula logaritmos en base $e$.
-
-El segundo ejemplo encuentra el seno de \texttt{radians}. El nombre de la variable \texttt{radians} es una pista de que \texttt{sin} y las otras funciones trigonométricas (\texttt{cos}, \texttt{tan}, etc.) toman argumentos en radianes.
-
-Para convertir de grados a radianes, divide por 180 y multiplica por $\pi$:
-
-\begin{lstlisting}
->>> degrees = 45
->>> radians = degrees / 180.0 * math.pi
->>> math.sin(radians)
-0.707106781187
-\end{lstlisting}
-
-La expresión \texttt{math.pi} obtiene la variable $\pi$ del módulo \texttt{math}. Su valor es una aproximación en punto flotante de $\pi$, precisa hasta aproximadamente 15 dígitos.
-
-Si conoces trigonometría, puedes verificar el resultado anterior comparándolo con la raíz cuadrada de dos, dividida por dos:
-
-\begin{lstlisting}
->>> math.sqrt(2) / 2.0
-0.707106781187
-\end{lstlisting}
-
-\section{Composición}
-
-Hasta ahora, hemos examinado los elementos de un programa—variables, expresiones y declaraciones—de forma aislada, sin hablar sobre cómo combinarlos.
-
-Una de las características más útiles de los lenguajes de programación es su capacidad para tomar pequeños bloques de construcción y componerlos. Por ejemplo, el argumento de una función puede ser cualquier tipo de expresión, incluyendo operadores aritméticos:
-
-\begin{lstlisting}
-x = math.sin(degrees / 360.0 * 2 * math.pi)
-\end{lstlisting}
-
-E incluso llamadas a funciones:
-
-\begin{lstlisting}
-x = math.exp(math.log(x+1))
-\end{lstlisting}
-
-Casi en cualquier lugar donde puedas poner un valor, puedes poner una expresión arbitraria, con una excepción: el lado izquierdo de una declaración de asignación tiene que ser un nombre de variable. Cualquier otra expresión en el lado izquierdo es un error de sintaxis (veremos excepciones a esta regla más adelante).
-
-\begin{lstlisting}
->>> minutes = hours * 60
->>> hours * 60 = minutes
-SyntaxError: can't assign to operator
-\end{lstlisting}
-
-\section{Agregando nuevas funciones}
-
-Hasta ahora, solo hemos estado usando las funciones que vienen con Python, pero también es posible añadir nuevas funciones. Una definición de función especifica el nombre de una nueva función y la secuencia de declaraciones que se ejecutan cuando la función es llamada.
-
-Aquí hay un ejemplo:
-
-\begin{lstlisting}
-def print_lyrics():
-    print("I'm a lumberjack, and I'm okay.")
-    print("I sleep all night and I work all day.")
-\end{lstlisting}
-
-\texttt{def} es una palabra clave que indica que esta es una definición de función. El nombre de la función es \texttt{print\_lyrics}. Las reglas para los nombres de funciones son las mismas que para los nombres de variables: letras, números y guiones bajos son legales, pero el primer carácter no puede ser un número. No puedes usar una palabra clave como nombre de una función, y debes evitar tener una variable y una función con el mismo nombre.
-
-Los paréntesis vacíos después del nombre indican que esta función no toma ningún argumento.
-
-La primera línea de la definición de función se llama el \textbf{encabezado}; el resto se llama el \textbf{cuerpo}. El encabezado tiene que terminar con dos puntos y el cuerpo tiene que estar indentado. Por convención, la indentación es siempre de cuatro espacios. El cuerpo puede contener cualquier número de declaraciones.
-
-Las cadenas en las declaraciones \texttt{print} están encerradas en comillas dobles. Las comillas simples y dobles hacen lo mismo; la mayoría de las personas usan comillas simples excepto en casos como este donde una comilla simple (que también es un apóstrofe) aparece en la cadena.
-
-Todas las comillas (simples y dobles) deben ser ``comillas rectas'', usualmente ubicadas junto a Enter en el teclado. Las ``comillas curvas'', como las de esta oración, no son legales en Python.
-
-Si escribes una definición de función en modo interactivo, el intérprete imprime puntos (\texttt{...}) para hacerte saber que la definición no está completa:
-
-\begin{lstlisting}
->>> def print_lyrics():
-...     print("I'm a lumberjack, and I'm okay.")
-...     
-...     print("I sleep all night and I work all day.")
-\end{lstlisting}
-
-Para terminar la función, tienes que ingresar una línea vacía.
-
-Definir una función crea un objeto función, que tiene tipo \texttt{function}:
-
-\begin{lstlisting}
->>> print(print_lyrics)
-<function print_lyrics at 0x7f...>
->>> type(print_lyrics)
-<class 'function'>
-\end{lstlisting}
-
-La sintaxis para llamar a la nueva función es la misma que para las funciones incorporadas:
-
-\begin{lstlisting}
->>> print_lyrics()
-I'm a lumberjack, and I'm okay.
-I sleep all night and I work all day.
-\end{lstlisting}
-
-Una vez que has definido una función, puedes usarla dentro de otra función. Por ejemplo, para repetir el estribillo anterior, podríamos escribir una función llamada \texttt{repeat\_lyrics}:
-
-\begin{lstlisting}
-def repeat_lyrics():
-    print_lyrics()
-    print_lyrics()
-\end{lstlisting}
-
-Y luego llamar a \texttt{repeat\_lyrics}:
-
-\begin{lstlisting}
->>> repeat_lyrics()
-I'm a lumberjack, and I'm okay.
-I sleep all night and I work all day.
-I'm a lumberjack, and I'm okay.
-I sleep all night and I work all day.
-\end{lstlisting}
-
-Pero esa no es realmente como va la canción.
-
-\section{Definiciones y Usos}
-
-Reuniendo los fragmentos de código de la sección anterior, todo el programa se ve así:
-
-\begin{lstlisting}
-def print_lyrics():
-    print("I'm a lumberjack, and I'm okay.")
-    print("I sleep all night and I work all day.")
-
-def repeat_lyrics():
-    print_lyrics()
-    print_lyrics()
-
-repeat_lyrics()
-\end{lstlisting}
-
-Este programa contiene dos definiciones de función: \texttt{print\_lyrics} y \texttt{repeat\_lyrics}. Las definiciones de función se ejecutan igual que otras declaraciones, pero el efecto es crear objetos función. Las declaraciones dentro de la función no se ejecutan hasta que la función es llamada, y la definición de función no genera ninguna salida.
-
-Como podrías esperar, tienes que crear una función antes de poder ejecutarla. En otras palabras, la definición de función tiene que ejecutarse antes de que la función sea llamada.
-
-Como ejercicio, mueve la última línea de este programa al principio, para que la llamada a la función aparezca antes de las definiciones. Ejecuta el programa y ve qué mensaje de error obtienes.
-
-Ahora mueve la llamada a la función de vuelta al final y mueve la definición de \texttt{print\_lyrics} después de la definición de \texttt{repeat\_lyrics}. ¿Qué sucede cuando ejecutas este programa?
-
-\section{Flujo de Ejecución}
-
-Para asegurar que una función esté definida antes de su primer uso, tienes que conocer el orden en que se ejecutan las declaraciones, lo cual se llama el flujo de ejecución.
-
-La ejecución siempre comienza en la primera declaración del programa. Las declaraciones se ejecutan una a la vez, en orden de arriba hacia abajo.
-
-Las definiciones de función no alteran el flujo de ejecución del programa, pero recuerda que las declaraciones dentro de la función no se ejecutan hasta que la función es llamada.
-
-Una llamada a función es como un desvío en el flujo de ejecución. En lugar de ir a la siguiente declaración, el flujo salta al cuerpo de la función, ejecuta las declaraciones ahí, y luego regresa para continuar donde se quedó.
-
-Eso suena bastante simple, hasta que recuerdas que una función puede llamar a otra. Mientras está en el medio de una función, el programa podría tener que ejecutar las declaraciones en otra función. Luego, mientras ejecuta esa nueva función, ¡el programa podría tener que ejecutar aún otra función!
-
-Afortunadamente, Python es bueno manteniendo el registro de dónde está, así que cada vez que una función se completa, el programa continúa donde se quedó en la función que la llamó. Cuando llega al final del programa, termina.
-
-En resumen, cuando lees un programa, no siempre quieres leer de arriba hacia abajo. A veces tiene más sentido si sigues el flujo de ejecución.
-
-\section{Parámetros y Argumentos}
-
-Algunas de las funciones que hemos visto requieren argumentos. Por ejemplo, cuando llamas a \texttt{math.sin} pasas un número como argumento. Algunas funciones toman más de un argumento: \texttt{math.pow} toma dos, la base y el exponente.
-
-Dentro de la función, los argumentos son asignados a variables llamadas parámetros. Aquí hay una definición para una función que toma un argumento:
-
-\begin{lstlisting}
-def print_twice(bruce):
-    print(bruce)
-    print(bruce)
-\end{lstlisting}
-
-Esta función asigna el argumento a un parámetro llamado \texttt{bruce}. Cuando la función es llamada, imprime el valor del parámetro (sea lo que sea) dos veces.
-
-Esta función funciona con cualquier valor que pueda ser impreso.
-
-\begin{lstlisting}
->>> print_twice('Spam')
-Spam
-Spam
->>> print_twice(42)
-42
-42
->>> print_twice(math.pi)
-3.14159265359
-3.14159265359
-\end{lstlisting}
-
-Las mismas reglas de composición que se aplican a las funciones incorporadas también se aplican a las funciones definidas por el programador, así que podemos usar cualquier tipo de expresión como argumento para \texttt{print\_twice}:
-
-\begin{lstlisting}
->>> print_twice('Spam '*4)
-Spam Spam Spam Spam 
-Spam Spam Spam Spam 
->>> print_twice(math.cos(math.pi))
--1.0
--1.0
-\end{lstlisting}
-
-El argumento es evaluado antes de que la función sea llamada, así que en los ejemplos las expresiones \texttt{'Spam '*4} y \texttt{math.cos(math.pi)} son evaluadas solo una vez.
-
-También puedes usar una variable como argumento:
-
-\begin{lstlisting}
->>> michael = 'Eric, the half a bee.'
->>> print_twice(michael)
-Eric, the half a bee.
-Eric, the half a bee.
-\end{lstlisting}
-
-El nombre de la variable que pasamos como argumento (\texttt{michael}) no tiene nada que ver con el nombre del parámetro (\texttt{bruce}). No importa cómo se llamaba el valor en casa (en el que llama); aquí en \texttt{print\_twice}, llamamos a todos \texttt{bruce}.
-
-\section{Variables y Parámetros Locales}
-
-Cuando creas una variable dentro de una función, es local, lo que significa que solo existe dentro de la función. Por ejemplo:
-
-\begin{lstlisting}
-def cat_twice(part1, part2):
-    cat = part1 + part2
-    print_twice(cat)
-\end{lstlisting}
-
-Esta función toma dos argumentos, los concatena, e imprime el resultado dos veces. Aquí hay un ejemplo que la usa:
-
-\begin{lstlisting}
->>> line1 = 'Bing tiddle '
->>> line2 = 'tiddle bang.'
->>> cat_twice(line1, line2)
-Bing tiddle tiddle bang.
-Bing tiddle tiddle bang.
-\end{lstlisting}
-
-Cuando \texttt{cat\_twice} termina, la variable \texttt{cat} es destruida. Si tratamos de imprimirla, obtenemos una excepción:
 
 \begin{figure}[h]
 \centering
-\begin{tabular}{|l|l|}
+\begin{tabular}{|c|c|}
 \hline
-\multicolumn{2}{|c|}{\textbf{\_\_main\_\_}} \\
+\texttt{\_\_main\_\_} & \phantom{n $\rightarrow$ 3} \\
 \hline
-line1 & $\longrightarrow$ 'Bing tiddle ' \\
-line2 & $\longrightarrow$ 'tiddle bang.' \\
+\texttt{countdown} & n $\rightarrow$ 3 \\
 \hline
-\end{tabular}
-
-\vspace{0.5cm}
-
-\begin{tabular}{|l|l|}
+\texttt{countdown} & n $\rightarrow$ 2 \\
 \hline
-\multicolumn{2}{|c|}{\textbf{cat\_twice}} \\
+\texttt{countdown} & n $\rightarrow$ 1 \\
 \hline
-part1 & $\longrightarrow$ 'Bing tiddle ' \\
-part2 & $\longrightarrow$ 'tiddle bang.' \\
-cat & $\longrightarrow$ 'Bing tiddle tiddle bang.' \\
+\texttt{countdown} & n $\rightarrow$ 0 \\
 \hline
 \end{tabular}
-
-\vspace{0.5cm}
-
-\begin{tabular}{|l|l|}
-\hline
-\multicolumn{2}{|c|}{\textbf{print\_twice}} \\
-\hline
-bruce & $\longrightarrow$ 'Bing tiddle tiddle bang.' \\
-\hline
-\end{tabular}
-
 \caption{Diagrama de pila.}
-\label{fig:stack_diagram}
+\label{fig:diagrama_de_pila}
 \end{figure}
 
+Si \texttt{n <= 0} la \textbf{declaración return} sale de la función. El flujo de ejecución inmediatamente regresa al llamador, y las líneas restantes de la función no se ejecutan.
+
+El resto de la función es similar a \texttt{countdown}: muestra \texttt{s} y luego se llama a sí misma para mostrar \texttt{s} $n-1$ veces adicionales. Así que el número de líneas de salida es $1 + (n-1)$, que suma $n$.
+
+Para ejemplos simples como este, es probablemente más fácil usar un bucle \texttt{for}. Pero veremos ejemplos más adelante que son difíciles de escribir con un bucle \texttt{for} y fáciles de escribir con recursión, así que es bueno empezar temprano.
+
+\section{Diagramas de pila para funciones recursivas}
+
+En la Sección~\ref{sec:diagramas_de_pila} usamos un diagrama de pila para representar el estado de un programa durante una llamada a función. El mismo tipo de diagrama puede ayudar a interpretar una función recursiva.
+
+Cada vez que se llama a una función, Python crea un marco para contener las variables locales y parámetros de la función. Para una función recursiva, podría haber más de un marco en la pila al mismo tiempo.
+
+La Figura~\ref{fig:diagrama_de_pila} muestra un diagrama de pila para \texttt{countdown} llamada con $n = 3$.
+
+Como de costumbre, la parte superior de la pila es el marco para \texttt{\_\_main\_\_}. Está vacío porque no creamos ninguna variable en \texttt{\_\_main\_\_} ni le pasamos argumentos.
+
+Los cuatro marcos de \texttt{countdown} tienen diferentes valores para el parámetro $n$. La parte inferior de la pila, donde $n=0$, se llama el \textbf{caso base}. No hace una llamada recursiva, así que no hay más marcos.
+
+Como ejercicio, dibuja un diagrama de pila para \texttt{print\_n} llamada con $s = $ `Hello' y $n=2$. Luego escribe una función llamada \texttt{do\_n} que tome un objeto función y un número, $n$, como argumentos, y que llame a la función dada $n$ veces.
+
+Una función que se llama a sí misma es recursiva; el proceso de ejecutarla se llama recursión.
+
+Como otro ejemplo, podemos escribir una función que imprima una cadena $n$ veces.
+
+\section{Recursión infinita}
+
+Si una recursión nunca alcanza un caso base, continúa haciendo llamadas recursivas para siempre, y el programa nunca termina. Esto se conoce como \textbf{recursión infinita}, y generalmente no es una buena idea. Aquí hay un programa mínimo con recursión infinita:
+
 \begin{lstlisting}
->>> print(cat)
-NameError: name 'cat' is not defined
+def recursion():
+    recursion()
 \end{lstlisting}
 
-%Los parámetros también son locales. Por ejemplo, fuera de print_twice, no existe nada parecido a bruce.
-
-\section{Diagramas de Pila}
-
-Para hacer un seguimiento de qué variables pueden ser usadas en dónde, a veces es útil dibujar un diagrama de pila. Como los diagramas de estado, los diagramas de pila muestran el valor de cada variable, pero también muestran la función a la que pertenece cada variable.
-
-Cada función está representada por un marco. Un marco es una caja con el nombre de una función al lado y los parámetros y variables de la función dentro de ella. El diagrama de pila para el ejemplo anterior se muestra en la Figura 3.1.
-
-Los marcos están organizados en una pila que indica qué función llamó a cuál, y así sucesivamente. En este ejemplo, \texttt{print\_twice} fue llamada por \texttt{cat\_twice}, y \texttt{cat\_twice} fue llamada por \texttt{\_\_main\_\_}, que es un nombre especial para el marco superior. Cuando creas una variable fuera de cualquier función, pertenece a \texttt{\_\_main\_\_}.
-
-Cada parámetro se refiere al mismo valor que su argumento correspondiente. Así, \texttt{part1} tiene el mismo valor que \texttt{line1}, \texttt{part2} tiene el mismo valor que \texttt{line2}, y \texttt{bruce} tiene el mismo valor que \texttt{cat}.
-
-Si ocurre un error durante una llamada a función, Python imprime el nombre de la función, el nombre de la función que la llamó, y el nombre de la función que llamó a esa, todo el camino de vuelta hasta \texttt{\_\_main\_\_}.
-
-Por ejemplo, si tratas de acceder a \texttt{cat} desde dentro de \texttt{print\_twice}, obtienes un \texttt{NameError}:
+En la mayoría de entornos de programación, un programa con recursión infinita no se ejecuta realmente para siempre. Python reporta un mensaje de error cuando se alcanza la profundidad máxima de recursión:
 
 \begin{lstlisting}
-Traceback (innermost last):
-File "test.py", line 13, in __main__
-    cat_twice(line1, line2)
-File "test.py", line 5, in cat_twice
-    print_twice(cat)
-File "test.py", line 9, in print_twice
-    print(cat)
-NameError: name 'cat' is not defined
+File "<stdin>", line 2, in recurse
+File "<stdin>", line 2, in recurse
+File "<stdin>", line 2, in recurse
+                    .
+                    .
+                    .
+File "<stdin>", line 2, in recurse
+RuntimeError: Maximum recursion depth exceeded
 \end{lstlisting}
 
-Esta lista de funciones se llama un \textit{traceback}. Te dice en qué archivo de programa ocurrió el error, y en qué línea, y qué funciones se estaban ejecutando en ese momento. También muestra la línea de código que causó el error.
+Este traceback es un poco más grande que el que vimos en el capítulo anterior. Cuando ocurre el error, ¡hay 1000 marcos de \texttt{recurse} en la pila!
 
-El orden de las funciones en el traceback es el mismo que el orden de los marcos en el diagrama de pila. La función que se está ejecutando actualmente está en la parte inferior.
+Si encuentras una recursión infinita por accidente, revisa tu función para confirmar que hay un caso base que no hace una llamada recursiva. Y si hay un caso base, verifica si tienes garantía de alcanzarlo.
 
-\section{Funciones con valor de retorno y funciones vacías}
+\section{Entrada de teclado}
 
-Algunas de las funciones que hemos usado, como las funciones matemáticas, devuelven resultados; por falta de un nombre mejor, las llamo funciones con valor de retorno. Otras funciones, como \texttt{print\_twice}, realizan una acción pero no devuelven un valor. Se llaman funciones vacías.
+Los programas que hemos escrito hasta ahora no aceptan entrada del usuario. Simplemente hacen lo mismo cada vez.
 
-Cuando llamas a una función con valor de retorno, casi siempre quieres hacer algo con el resultado; por ejemplo, podrías asignarlo a una variable o usarlo como parte de una expresión:
+Python proporciona una función integrada llamada \texttt{input} que detiene el programa y espera a que el usuario escriba algo. Cuando el usuario presiona Return o Enter, el programa se reanuda e \texttt{input} devuelve lo que el usuario escribió como una cadena. En Python 2, la misma función se llama \texttt{raw\_input}.
 
-\begin{lstlisting}[language=Python]
-x = math.cos(radians)
-golden = (math.sqrt(5) + 1) / 2
+\begin{lstlisting}
+>>> text = input()
+What are you waiting for?
+>>> text
+'What are you waiting for?'
 \end{lstlisting}
 
-Cuando llamas a una función en modo interactivo, Python muestra el resultado:
+Antes de obtener entrada del usuario, es buena idea imprimir un mensaje diciendo al usuario qué escribir. \texttt{input} puede tomar un mensaje como argumento:
 
-\begin{lstlisting}[language=Python]
->>> math.sqrt(5)
-2.2360679774997898
+\begin{lstlisting}
+>>> nombre = input('cual es tu nombre?\n')
+cual es tu nombre?
+Arthur, rey de Britons!
+>>> name
+'Arthur, rey de Britons!'
 \end{lstlisting}
 
-Pero en un script, si llamas a una función con valor de retorno por sí sola, ¡el valor de retorno se pierde para siempre!
+La secuencia \texttt{\textbackslash n} al final del mensaje representa una \textbf{nueva línea}, que es un carácter especial que causa un salto de línea. Por eso la entrada del usuario aparece debajo del mensaje.
 
-\begin{lstlisting}[language=Python]
-math.sqrt(5)
+Si esperas que el usuario escriba un entero, puedes tratar de convertir el valor de retorno a \texttt{int}:
+
+\begin{lstlisting}
+>>> prompt = 'What...is the airspeed velocity of an unladen swallow?\n'
+>>> speed = input(prompt)
+What...is the airspeed velocity of an unladen swallow?
+42
+>>> int(speed)
+42
 \end{lstlisting}
 
-Este script calcula la raíz cuadrada de 5, pero como no almacena ni muestra el resultado, no es muy útil.
+Pero si el usuario escribe algo que no sea una cadena de dígitos, obtienes un error:
 
-Las funciones vacías pueden mostrar algo en la pantalla o tener algún otro efecto, pero no tienen un valor de retorno. Si asignas el resultado a una variable, obtienes un valor especial llamado \texttt{None}.
-
-\begin{lstlisting}[language=Python]
->>> result = print_twice('Bing')
-Bing
-Bing
->>> print(result)
-None
+\begin{lstlisting}
+>>> speed = input(prompt)
+What...is the airspeed velocity of an unladen swallow?
+What do you mean, an African or a European swallow?
+>>> int(speed)
+ValueError: invalid literal for int() with base 10
 \end{lstlisting}
 
-El valor \texttt{None} no es lo mismo que la cadena \texttt{'None'}. Es un valor especial que tiene su propio tipo:
-
-\begin{lstlisting}[language=Python]
->>> type(None)
-<class 'NoneType'>
-\end{lstlisting}
-
-Las funciones que hemos escrito hasta ahora son todas vacías. Comenzaremos a escribir funciones con valor de retorno en unos pocos capítulos.
-
-\section{¿Por qué funciones?}
-
-Puede que no esté claro por qué vale la pena tomarse la molestia de dividir un programa en funciones. Hay varias razones:
-
-\begin{itemize}
-\item Crear una nueva función te da la oportunidad de nombrar un grupo de instrucciones, lo que hace que tu programa sea más fácil de leer y depurar.
-
-\item Las funciones pueden hacer que un programa sea más pequeño al eliminar código repetitivo. Más tarde, si haces un cambio, solo tienes que hacerlo en un lugar.
-
-\item Dividir un programa largo en funciones te permite depurar las partes una a la vez y luego ensamblarlas en un todo funcional.
-
-\item Las funciones bien diseñadas son a menudo útiles para muchos programas. Una vez que escribes y depuras una, puedes reutilizarla.
-\end{itemize}
+Veremos cómo manejar este tipo de error más adelante.
 
 \section{Depuración}
 
-Una de las habilidades más importantes que adquirirás es la depuración. Aunque puede ser frustrante, la depuración es una de las partes más intelectualmente ricas, desafiantes e interesantes de la programación.
+Cuando ocurre un error de sintaxis o de ejecución, el mensaje de error contiene mucha información, pero puede ser abrumador. Las partes más útiles usualmente son:
 
-En cierto modo, la depuración es como trabajo de detective. Te enfrentas a pistas y tienes que inferir los procesos y eventos que llevaron a los resultados que ves.
+\begin{itemize}
+\item Qué tipo de error fue, y
+\item Dónde ocurrió.
+\end{itemize}
 
-La depuración también es como una ciencia experimental. Una vez que tienes una idea sobre qué está saliendo mal, modificas tu programa e intentas de nuevo. Si tu hipótesis era correcta, puedes predecir el resultado de la modificación, y das un paso más cerca de un programa que funcione. Si tu hipótesis era incorrecta, tienes que crear una nueva.
+Los errores de sintaxis son usualmente fáciles de encontrar, pero hay algunas trampas. Los errores de espacios en blanco pueden ser complicados porque los espacios y tabulaciones son invisibles y estamos acostumbrados a ignorarlos.
 
-Como señaló Sherlock Holmes: "Cuando has eliminado lo imposible, lo que queda, por improbable que sea, debe ser la verdad." (A. Conan Doyle, \textit{El signo de los cuatro})
+\begin{verbatim}
+>>> x = 5
+>>>  y = 6
+  File "<stdin>", line 1
+    y = 6
+    ^
+IndentationError: unexpected indent
+\end{verbatim}
 
-Para algunas personas, programar y depurar son la misma cosa. Es decir, programar es el proceso de depurar gradualmente un programa hasta que haga lo que quieres. La idea es que deberías empezar con un programa que funcione y hacer pequeñas modificaciones, depurándolas a medida que avanzas.
+En este ejemplo, el problema es que la segunda línea está indentada por un espacio. Pero el mensaje de error apunta a \texttt{y}, que es engañoso. En general, los mensajes de error indican dónde se descubrió el problema, pero el error real podría estar antes en el código, algunas veces en una línea anterior.
+
+Lo mismo es cierto para los errores de ejecución. Supongamos que estás tratando de calcular una relación señal-ruido en decibeles. La fórmula es $SNR_{db} = 10 \log_{10}(P_{signal}/P_{noise})$. En Python, podrías escribir algo como esto:
+
+\begin{verbatim}
+import math
+signal_power = 9
+noise_power = 10
+ratio = signal_power // noise_power
+decibels = 10 * math.log10(ratio)
+print(decibels)
+\end{verbatim}
+
+Cuando ejecutas este programa, obtienes una excepción:
+
+\begin{verbatim}
+Traceback (most recent call last):
+  File "snr.py", line 5, in ?
+    decibels = 10 * math.log10(ratio)
+ValueError: math domain error
+\end{verbatim}
+
+El mensaje de error indica la línea 5, pero no hay nada malo con esa línea. Para encontrar el error real, podría ser útil imprimir el valor de \texttt{ratio}, que resulta ser 0. El problema está en la línea 4, que usa división entera en lugar de división de punto flotante.
+
+Deberías tomarte el tiempo para leer los mensajes de error cuidadosamente, pero no asumas que todo lo que dicen es correcto.
 
 \section{Glosario}
 
-\begin{description}
-\item[función:] Una secuencia nombrada de instrucciones que realiza alguna operación útil. Las funciones pueden o no tomar argumentos y pueden o no producir un resultado.
+\textbf{división entera:} Un operador, denotado \texttt{//}, que divide dos números y redondea hacia abajo (hacia el infinito negativo) a un entero.
 
-\item[definición de función:] Una instrucción que crea una nueva función, especificando su nombre, parámetros y las instrucciones que contiene.
+\textbf{operador módulo:} Un operador, denotado con un signo de porcentaje (\texttt{\%}), que funciona con enteros y devuelve el resto cuando un número es dividido por otro.
 
-\item[objeto función:] Un valor creado por una definición de función. El nombre de la función es una variable que se refiere a un objeto función.
+\textbf{expresión booleana:} Una expresión cuyo valor es \texttt{True} o \texttt{False}.
 
-\item[encabezado:] La primera línea de una definición de función.
+\textbf{operador relacional:} Uno de los operadores que compara sus operandos: \texttt{==}, \texttt{!=}, \texttt{>}, \texttt{<}, \texttt{>=}, y \texttt{<=}.
 
-\item[cuerpo:] La secuencia de instrucciones dentro de una definición de función.
+\textbf{operador lógico:} Uno de los operadores que combina expresiones booleanas: \texttt{and}, \texttt{or}, y \texttt{not}.
 
-\item[parámetro:] Un nombre usado dentro de una función para referirse al valor pasado como argumento.
+\textbf{declaración condicional:} Una declaración que controla el flujo de ejecución dependiendo de alguna condición.
 
-\item[llamada a función:] Una instrucción que ejecuta una función. Consiste en el nombre de la función seguido de una lista de argumentos entre paréntesis.
+\textbf{condición:} La expresión booleana en una declaración condicional que determina qué rama se ejecuta.
 
-\item[argumento:] Un valor proporcionado a una función cuando se llama la función. Este valor se asigna al parámetro correspondiente en la función.
+\textbf{declaración compuesta:} Una declaración que consiste de un encabezado y un cuerpo. El encabezado termina con dos puntos (:). El cuerpo está indentado relativo al encabezado.
 
-\item[variable local:] Una variable definida dentro de una función. Una variable local solo puede usarse dentro de su función.
+\textbf{rama:} Una de las secuencias alternativas de declaraciones en una declaración condicional.
 
-\item[valor de retorno:] El resultado de una función. Si una llamada a función se usa como una expresión, el valor de retorno es el valor de la expresión.
+\textbf{condicional encadenada:} Una declaración condicional con una serie de ramas alternativas.
 
-\item[función con valor de retorno:] Una función que devuelve un valor.
+\textbf{condicional anidada:} Una declaración condicional que aparece en una de las ramas de otra declaración condicional.
 
-\item[función vacía:] Una función que siempre devuelve \texttt{None}.
+\textbf{declaración return:} Una declaración que causa que una función termine inmediatamente y regrese al llamador.
 
-\item[None:] Un valor especial devuelto por las funciones vacías.
+\textbf{recursión:} El proceso de llamar a la función que se está ejecutando actualmente.
 
-\item[módulo:] Un archivo que contiene una colección de funciones relacionadas y otras definiciones.
+\textbf{caso base:} Una rama condicional en una función recursiva que no hace una llamada recursiva.
 
-\item[instrucción import:] Una instrucción que lee un archivo de módulo y crea un objeto módulo.
-
-\item[objeto módulo:] Un valor creado por una instrucción import que proporciona acceso a los valores definidos en un módulo.
-
-\item[notación de punto:] La sintaxis para llamar una función en otro módulo especificando el nombre del módulo seguido de un punto y el nombre de la función.
-
-\item[composición:] Usar una expresión como parte de una expresión más grande, o una instrucción como parte de una instrucción más grande.
-
-\item[flujo de ejecución:] El orden en que se ejecutan las instrucciones.
-
-\item[diagrama de pila:] Una representación gráfica de una pila de funciones, sus variables y los valores a los que se refieren.
-
-\item[marco:] Una caja en un diagrama de pila que representa una llamada a función. Contiene las variables locales y parámetros de la función.
-
-\item[traceback:] Una lista de las funciones que se están ejecutando, impresa cuando ocurre una excepción.
-\end{description}
+\textbf{recursión infinita:} Una recursión que no tiene un caso base, o nunca lo alcanza. Eventualmente, una recursión infinita causa un error de tiempo de ejecución.
 
 \section{Ejercicios}
 
-\textbf{Ejercicio 3.1.} Escribe una función llamada \texttt{right\_justify} que tome una cadena llamada \texttt{s} como parámetro e imprima la cadena con suficientes espacios iniciales para que la última letra de la cadena esté en la columna 70 de la pantalla.
+\textbf{Ejercicio 5.1.} El módulo \texttt{time} proporciona una función, también llamada \texttt{time}, que devuelve la Hora Media de Greenwich actual en ``la época'', que es un tiempo arbitrario usado como punto de referencia. En sistemas UNIX, la época es el 1 de enero de 1970.
 
-\begin{lstlisting}[language=Python]
->>> right_justify('monty')
-                                                            monty
-\end{lstlisting}
+\begin{verbatim}
+>>> import time
+>>> time.time()
+1437746094.5735958
+\end{verbatim}
 
-Pista: Usa concatenación y repetición de cadenas. Además, Python proporciona una función incorporada llamada \texttt{len} que devuelve la longitud de una cadena, por lo que el valor de \texttt{len('monty')} es 5.
+Escribe un script que lea la hora actual y la convierta a una hora del día en horas, minutos y segundos, más el número de días desde la época.
 
-\textbf{Ejercicio 3.2.} Un objeto función es un valor que puedes asignar a una variable o pasar como argumento. Por ejemplo, \texttt{do\_twice} es una función que toma un objeto función como argumento y lo llama dos veces:
-
-\begin{lstlisting}[language=Python]
-def do_twice(f):
-    f()
-    f()
-\end{lstlisting}
-
-Aquí tienes un ejemplo que usa \texttt{do\_twice} para llamar una función llamada \texttt{print\_spam} dos veces.
-
-\begin{lstlisting}[language=Python]
-def print_spam():
-    print('spam')
-
-do_twice(print_spam)
-\end{lstlisting}
+\textbf{Ejercicio 5.2.} El Último Teorema de Fermat dice que no hay enteros positivos $a$, $b$, y $c$ tales que
+$$a^n + b^n = c^n$$
+para cualquier valor de $n$ mayor que 2.
 
 \begin{enumerate}
-\item Escribe este ejemplo en un script y pruébalo.
+\item Escribe una función llamada \texttt{check\_fermat} que tome cuatro parámetros---$a$, $b$, $c$ y $n$---y verifique si se cumple el teorema de Fermat. Si $n$ es mayor que 2 y
+$$a^n + b^n = c^n$$
+el programa debe imprimir, ``¡Santo cielo, Fermat estaba equivocado!'' De lo contrario, el programa debe imprimir, ``No, eso no funciona.''
 
-\item Modifica \texttt{do\_twice} para que tome dos argumentos, un objeto función y un valor, y llame a la función dos veces, pasando el valor como argumento.
-
-\item Copia la definición de \texttt{print\_twice} de anteriormente en este capítulo a tu script.
-
-\item Usa la versión modificada de \texttt{do\_twice} para llamar \texttt{print\_twice} dos veces, pasando \texttt{'spam'} como argumento.
-
-\item Define una nueva función llamada \texttt{do\_four} que tome un objeto función y un valor y llame a la función cuatro veces, pasando el valor como parámetro. Debería haber solo dos instrucciones en el cuerpo de esta función, no cuatro.
+\item Escribe una función que solicite al usuario ingresar valores para $a$, $b$, $c$ y $n$, los convierta a enteros, y use \texttt{check\_fermat} para verificar si violan el teorema de Fermat.
 \end{enumerate}
 
-Solución: \href{https://thinkpython.com/code/do\_four.py}{https://thinkpython.com/code/do\_four.py}.
+\textbf{Ejercicio 5.3.} Si te dan tres palos, puedes o no ser capaz de organizarlos en un triángulo. Por ejemplo, si uno de los palos tiene 12 pulgadas de largo y los otros dos tienen una pulgada de largo, no podrás hacer que los palos cortos se encuentren en el medio. Para cualquier longitud, hay una prueba simple para ver si es posible formar un triángulo:
 
-\textbf{Ejercicio 3.3.} Nota: Este ejercicio debe hacerse usando solo las instrucciones y otras características que hemos aprendido hasta ahora.
+\emph{Si cualquiera de las tres longitudes es mayor que la suma de las otras dos, entonces no puedes formar un triángulo. De lo contrario, puedes. (Si la suma de dos longitudes es igual a la tercera, forman lo que se llama un triángulo ``degenerado''.)}
 
 \begin{enumerate}
-\item Escribe una función que dibuje una cuadrícula como la siguiente:
+\item Escribe una función llamada \texttt{is\_triangle} que tome tres enteros como argumentos, y que imprima ``Sí'' o ``No'', dependiendo de si puedes o no formar un triángulo a partir de palos con las longitudes dadas.
 
-\begin{lstlisting}
-+----+----+
-|    |    |
-|    |    |
-|    |    |
-|    |    |
-+----+----+
-|    |    |
-|    |    |
-|    |    |
-|    |    |
-+----+----+
-\end{lstlisting}
-
-Pista: para imprimir más de un valor en una línea, puedes imprimir una secuencia de valores separados por comas:
-
-\begin{lstlisting}[language=Python]
-print('+', '-')
-\end{lstlisting}
-
-Por defecto, \texttt{print} avanza a la siguiente línea, pero puedes anular ese comportamiento y poner un espacio al final, así:
-
-\begin{lstlisting}[language=Python]
-print('+', end=' ')
-print('-')
-\end{lstlisting}
-
-La salida de estas instrucciones es \texttt{'+-'} en la misma línea. La salida de la siguiente instrucción \texttt{print} comenzaría en la siguiente línea.
-
-\item Escribe una función que dibuje una cuadrícula similar con cuatro filas y cuatro columnas.
+\item Escribe una función que solicite al usuario ingresar tres longitudes de palos, las convierta a enteros, y use \texttt{is\_triangle} para verificar si los palos con las longitudes dadas pueden formar un triángulo.
 \end{enumerate}
 
-Solución: \href{https://thinkpython.com/code/grid.py}{https://thinkpython.com/code/grid.py}.
+\textbf{Ejercicio 5.4.} ¿Cuál es la salida del siguiente programa? Dibuja un diagrama de pila que muestre el estado del programa cuando imprime el resultado.
 
-Crédito: Este ejercicio está basado en un ejercicio en Oualline, \textit{Practical C Programming, Third Edition}, O'Reilly Media, 1997.
+\begin{verbatim}
+def recurse(n, s):
+    if n == 0:
+        print(s)
+    else:
+        recurse(n-1, n+s)
+
+recurse(3, 0)
+\end{verbatim}
+
+\begin{enumerate}
+\item ¿Qué pasaría si llamaras a esta función así: \texttt{recurse(-1, 0)}?
+
+\item Escribe una docstring que explique todo lo que alguien necesitaría saber para usar esta función (y nada más).
+\end{enumerate}
+
+Los siguientes ejercicios usan el módulo \texttt{turtle}, descrito en el Capítulo 4
+
+\textbf{Ejercicio 5.5.} Lee la siguiente función y ve si puedes descifrar qué hace (ver los ejemplos en el Capítulo 4). Luego ejecútala y ve si la entendiste bien.
+
+\begin{figure}[h]
+\centering
+% Aquí iría la imagen de la curva de Koch
+\caption{Una curva de Koch.}
+\label{fig:koch}
+\end{figure}
+
+\begin{verbatim}
+def draw(t, length, n):
+    if n == 0:
+        return
+    angle = 50
+    t.fd(length*n)
+    t.lt(angle)
+    draw(t, length, n-1)
+    t.rt(2*angle)
+    draw(t, length, n-1)
+    t.lt(angle)
+    t.bk(length*n)
+\end{verbatim}
+
+\textbf{Ejercicio 5.6.} La curva de Koch es un fractal que se parece algo a la Figura~\ref{fig:koch}. Para dibujar una curva de Koch con longitud $x$, todo lo que tienes que hacer es
+
+\begin{enumerate}
+\item Dibujar una curva de Koch con longitud $x/3$.
+\item Girar a la izquierda 60 grados.
+\item Dibujar una curva de Koch con longitud $x/3$.
+\item Girar a la derecha 120 grados.
+\item Dibujar una curva de Koch con longitud $x/3$.
+\item Girar a la izquierda 60 grados.
+\item Dibujar una curva de Koch con longitud $x/3$.
+\end{enumerate}
+
+La excepción es si $x$ es menor que 3: en ese caso, puedes simplemente dibujar una línea recta con longitud $x$.
+
+\begin{enumerate}
+\item Escribe una función llamada \texttt{koch} que tome una tortuga y una longitud como parámetros, y que use la tortuga para dibujar una curva de Koch con la longitud dada.
+
+\item Escribe una función llamada \texttt{snowflake} que dibuje tres curvas de Koch para hacer el contorno de un copo de nieve.
+
+Solución: \texttt{https://thinkpython.com/code/koch.py}
+
+\item La curva de Koch puede generalizarse de varias maneras. Ve \texttt{http://en.wikipedia.org/wiki/Koch\_snowflake} para ejemplos e implementa tu fractal favorito.
+\end{enumerate}
